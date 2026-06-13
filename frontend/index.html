@@ -77,6 +77,20 @@
         @keyframes icon-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
         .icon-float { animation: icon-bob 3.2s ease-in-out infinite; }
 
+        /* Custom animated icon set (category chips + trust icons) */
+        .ic-pulse, .ic-swing, .ic-grow, .ic-spin { transform-box: fill-box; transform-origin: center; }
+        @keyframes ic-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(1.2); } }
+        .ic-pulse { animation: ic-pulse 2.2s ease-in-out infinite; }
+        @keyframes ic-swing { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-16deg); } }
+        .ic-swing { animation: ic-swing 2.6s ease-in-out infinite; }
+        @keyframes ic-grow { 0%, 100% { transform: scaleY(.82); opacity: .8; } 50% { transform: scaleY(1); opacity: 1; } }
+        .ic-grow { animation: ic-grow 3.2s ease-in-out infinite; transform-origin: bottom center; }
+        @keyframes ic-draw { 0%, 35% { stroke-dashoffset: 14; } 65%, 100% { stroke-dashoffset: 0; } }
+        .ic-draw { animation: ic-draw 2.8s ease-in-out infinite; }
+        @keyframes ic-drip { 0% { transform: translateY(-3px); opacity: 0; } 25% { opacity: 1; } 70% { transform: translateY(5px); opacity: 0; } 100% { transform: translateY(5px); opacity: 0; } }
+        .ic-drip { animation: ic-drip 2s ease-in infinite; }
+        .ic-spin { animation: spin-slow 7s linear infinite; }
+
         /* Primary button shine sweep */
         .btn-primary, .btn-secondary { position: relative; overflow: hidden; }
         .btn-primary::after {
@@ -90,6 +104,15 @@
         /* Category chip icon motion */
         .cat-chip:hover .cat-icon { transform: scale(1.2) rotate(-6deg); }
         .cat-icon { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-block; }
+
+        /* Respect users who've asked for less motion */
+        @media (prefers-reduced-motion: reduce) {
+            .orb, .badge-pulse, .step-ring::after, .icon-float,
+            .ic-pulse, .ic-swing, .ic-grow, .ic-draw, .ic-drip, .ic-spin,
+            .btn-primary::after {
+                animation: none !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased" x-data x-init="$store.app.init()" x-cloak>
@@ -296,7 +319,7 @@
                             <div class="category-grid">
                                 <template x-for="cat in categories.slice(0, 8)" :key="cat.id">
                                     <button @click="browseCategory(cat)" class="cat-chip flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-3 transition text-sm">
-                                        <i :class="'cat-icon fas ' + cat.icon + ' text-blue-400'"></i>
+                                        <span class="cat-icon w-5 h-5 text-blue-400 shrink-0" x-html="categoryIcon(cat.id)"></span>
                                         <span x-text="cat.label"></span>
                                     </button>
                                 </template>
@@ -392,22 +415,44 @@
                 </div>
                 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="icon-float w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4" style="animation-delay: 0s"><i class="fas fa-shield-alt text-xl"></i></div>
+                        <div class="icon-float w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 p-2.5" style="animation-delay: 0s">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                                <path d="M12 3l7 3v5c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/>
+                                <path class="ic-draw" stroke-dasharray="9" stroke-dashoffset="9" d="M8.5 12l2.5 2.5 4.5-5"/>
+                            </svg>
+                        </div>
                         <h3 class="font-bold text-sm mb-2">Staðfestir fagmenn</h3>
                         <p class="text-slate-600 text-xs leading-relaxed">Allir fagmenn eru með staðfest réttindi og leyfisbréf.</p>
                     </div>
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="icon-float w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4" style="animation-delay: 0.3s"><i class="fas fa-lock text-xl"></i></div>
+                        <div class="icon-float w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4 p-2.5" style="animation-delay: 0.3s">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                                <rect x="5" y="11" width="14" height="9" rx="2"/>
+                                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                                <circle class="ic-pulse" cx="12" cy="15.5" r="1.4" fill="currentColor" stroke="none"/>
+                            </svg>
+                        </div>
                         <h3 class="font-bold text-sm mb-2">Örugg greiðsla</h3>
                         <p class="text-slate-600 text-xs leading-relaxed">Greiðslur vistaðar þar til verki er skilað að fullu.</p>
                     </div>
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="icon-float w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-4" style="animation-delay: 0.6s"><i class="fas fa-star text-xl"></i></div>
+                        <div class="icon-float w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-4 p-2.5" style="animation-delay: 0.6s">
+                            <svg viewBox="0 0 24 24" class="w-full h-full">
+                                <path class="ic-pulse" fill="currentColor" d="M12 2l2.6 5.8 6.2.7-4.6 4.3 1.2 6.2L12 16.8 6.6 19l1.2-6.2L3.2 8.5l6.2-.7z"/>
+                                <path class="ic-pulse" style="animation-delay:.6s" fill="currentColor" d="M19.5 1.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z"/>
+                            </svg>
+                        </div>
                         <h3 class="font-bold text-sm mb-2">Einkunnakerfi</h3>
                         <p class="text-slate-600 text-xs leading-relaxed">Raunverulegir notendur gefa einkunnir — engar falsaðar umsagnir.</p>
                     </div>
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="icon-float w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4" style="animation-delay: 0.9s"><i class="fas fa-calendar text-xl"></i></div>
+                        <div class="icon-float w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 p-2.5" style="animation-delay: 0.9s">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                                <rect x="3" y="5" width="18" height="16" rx="2"/>
+                                <path d="M3 9h18M8 3v4M16 3v4"/>
+                                <circle class="ic-pulse" cx="15.5" cy="14.5" r="1.5" fill="currentColor" stroke="none"/>
+                            </svg>
+                        </div>
                         <h3 class="font-bold text-sm mb-2">Dagatal & framboð</h3>
                         <p class="text-slate-600 text-xs leading-relaxed">Sjáðu hvenær fagmaður er laus og bókaðu beint.</p>
                     </div>

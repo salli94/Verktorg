@@ -9,6 +9,28 @@ function setToken(t) {
   else localStorage.removeItem("vt_token");
 }
 
+// Hand-drawn, animated SVG icons for trade categories — replaces static FontAwesome glyphs.
+// Each icon carries one signature CSS animation (defined in index.html) for a "living" feel.
+const CATEGORY_ICON_SVGS = {
+  rafvirkjun: `<svg viewBox="0 0 24 24" class="w-full h-full"><path class="ic-pulse" fill="currentColor" d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>`,
+  pipulagnir: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path class="ic-swing" style="transform-origin:75% 25%" d="M19.5 4.5a4 4 0 0 0-5.6 5.6L5 19l1.4 1.4 8.9-8.9a4 4 0 0 0 5.6-5.6l-2.8 2.8-1.4-1.4z"/></svg>`,
+  byggingarvinna: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path class="ic-swing" style="transform-origin:50% 100%" d="M4 16a8 8 0 1 1 16 0M12 8v3"/><path d="M2 16h20"/></svg>`,
+  malun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><rect x="3" y="3" width="9" height="5" rx="1"/><path d="M7.5 8v3"/><path d="M7.5 11h4a2 2 0 0 1 2 2v4"/><path class="ic-draw" stroke-dasharray="14" stroke-dashoffset="14" d="M4 20h13.5"/></svg>`,
+  gardyrkja: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M12 21v-7"/><path class="ic-grow" d="M12 14c0-4.5-3-7-7.5-7C4.5 11.5 7.5 14 12 14z"/><path class="ic-grow" style="animation-delay:.4s" d="M12 14c0-5.5 3.5-9 8.5-9C20.5 10.5 17 14 12 14z"/></svg>`,
+  hreinsun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M13 3 3 13"/><path d="M13 3l4 4-10 10-4-4z"/><path d="M9 9l2 2"/><path class="ic-pulse" style="animation-delay:.2s" fill="currentColor" stroke="none" d="M19 3l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8L16.5 5.5l1.8-.7z"/><path class="ic-pulse" style="animation-delay:.8s" fill="currentColor" stroke="none" d="M20.5 12.5l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5z"/></svg>`,
+  husgagnasmidi: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path class="ic-swing" style="transform-origin:50% 100%" d="M6 4v9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4"/><path d="M6 20v-5M18 20v-5M5 20h2M17 20h2"/></svg>`,
+  smidi: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><g class="ic-swing" style="transform-origin:80% 15%"><path d="M14.5 3.5l5 5-2 2-5-5z"/><path d="M16.5 7.5 5 19l-1.5-1.5L15 6.5z"/></g></svg>`,
+  lagningar: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><g class="ic-spin"><path d="M14.7 6.3a4 4 0 1 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2 2-2-2z"/></g></svg>`,
+  lagnir: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M4 4v6a4 4 0 0 0 4 4h8a4 4 0 0 1 4 4v2"/><path class="ic-drip" fill="currentColor" stroke="none" d="M16 13c-1.2 1.4-1.8 2.4-1.8 3.3a1.8 1.8 0 0 0 3.6 0c0-.9-.6-1.9-1.8-3.3z"/></svg>`,
+  rafeindaverk: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle class="ic-pulse" cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg>`,
+  hjolun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><g class="ic-swing" style="transform-origin:50% 0%"><path d="M12 2v3"/><path d="M9 5h6l2 6a5 5 0 0 1-10 0z"/></g></svg>`,
+  annad: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><g class="ic-spin"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></g></svg>`,
+};
+
+function categoryIcon(id) {
+  return CATEGORY_ICON_SVGS[id] || CATEGORY_ICON_SVGS.annad;
+}
+
 async function api(path, opts = {}) {
   const headers = { "Content-Type": "application/json", ...opts.headers };
   const token = getToken();
@@ -211,6 +233,8 @@ document.addEventListener("alpine:init", () => {
         window.dispatchEvent(ev);
       }, 100);
     },
+
+    categoryIcon,
   }));
 
   Alpine.data("jobsList", () => ({
