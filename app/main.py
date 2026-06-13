@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response
+from starlette.responses import JSONResponse
 from .database import engine, Base
 from .routers import auth, jobs, craftsmen, availability, bids, reviews, categories, notifications
 
@@ -33,7 +33,9 @@ class StagingAuthMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request, call_next):
-        if request.url.path == "/api/health":
+        # CORS preflight and the health check must stay open: preflight requests
+        # never carry credentials, and hosts poll /api/health without auth.
+        if request.url.path == "/api/health" or request.method == "OPTIONS":
             return await call_next(request)
 
         auth_header = request.headers.get("authorization", "")
@@ -47,7 +49,13 @@ class StagingAuthMiddleware(BaseHTTPMiddleware):
         if secrets.compare_digest(user, STAGING_AUTH_USER) and secrets.compare_digest(pwd, STAGING_AUTH_PASS):
             return await call_next(request)
 
-        return Response(status_code=401, headers={"WWW-Authenticate": 'Basic realm="Verktorg staging"'})
+        # JSON body so the frontend's api() helper (which always calls res.json())
+        # doesn't throw on an empty 401 response.
+        return JSONResponse(
+            status_code=401,
+            content={"detail": "Unauthorized"},
+            headers={"WWW-Authenticate": 'Basic realm="Verktorg staging"'},
+        )
 
 
 if STAGING_AUTH_USER and STAGING_AUTH_PASS:

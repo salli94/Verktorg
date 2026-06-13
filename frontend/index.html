@@ -629,6 +629,11 @@
                         <option value="gardyrkja">Garðyrkja</option>
                         <option value="hreinsun">Hreinsun</option>
                         <option value="husgagnasmidi">Húsgagnasmíði</option>
+                        <option value="smidi">Smíði</option>
+                        <option value="lagningar">Lagningar</option>
+                        <option value="lagnir">Lagnir</option>
+                        <option value="rafeindaverk">Rafeindaverk</option>
+                        <option value="hjolun">Hjólun</option>
                         <option value="annad">Annað</option>
                     </select>
                     <div class="relative">
@@ -682,13 +687,13 @@
                             <h3 class="font-bold text-slate-900" x-text="craftsman.user?.full_name"></h3>
                             <p class="text-sm text-blue-600 font-medium mt-1" x-text="categoryLabel(craftsman.trade_category)"></p>
                             <p class="text-slate-500 text-sm mt-1"><i class="fas fa-map-marker-alt mr-1"></i><span x-text="craftsman.location || 'Ísland'"></span></p>
-                            <template x-if="craftsman.years_experience">
+                            <template x-if="craftsman.years_experience != null">
                                 <p class="text-slate-400 text-xs mt-1"><span x-text="craftsman.years_experience"></span> ára reynsla</p>
                             </template>
                             <template x-if="craftsman.description">
                                 <p class="text-slate-600 text-xs leading-relaxed mt-3 line-clamp-2" x-text="craftsman.description"></p>
                             </template>
-                            <template x-if="craftsman.hourly_rate">
+                            <template x-if="craftsman.hourly_rate != null">
                                 <p class="text-slate-900 font-bold mt-3 pt-3 border-t border-slate-100"><span x-text="craftsman.hourly_rate.toLocaleString()"></span> kr./klst</p>
                             </template>
                         </div>

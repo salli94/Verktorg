@@ -615,7 +615,7 @@ document.addEventListener("alpine:init", () => {
         this.craftsmen = res.items || [];
         this.total = res.total;
         this.totalPages = res.total_pages;
-      } catch { this.craftsmen = []; }
+      } catch { this.craftsmen = []; this.total = 0; this.totalPages = 0; }
       this.loading = false;
     },
 
