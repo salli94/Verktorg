@@ -1,7 +1,12 @@
+import base64
+import os
+import secrets
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
 from .database import engine, Base
 from .routers import auth, jobs, craftsmen, availability, bids, reviews, categories, notifications
 
@@ -14,6 +19,39 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+STAGING_AUTH_USER = os.environ.get("STAGING_AUTH_USER")
+STAGING_AUTH_PASS = os.environ.get("STAGING_AUTH_PASS")
+
+
+class StagingAuthMiddleware(BaseHTTPMiddleware):
+    """Gate the whole site behind HTTP Basic Auth while in staging.
+
+    Activated only when STAGING_AUTH_USER/STAGING_AUTH_PASS are set, so it's a
+    no-op locally and can be turned off for public launch by removing the env vars.
+    """
+
+    async def dispatch(self, request, call_next):
+        if request.url.path == "/api/health":
+            return await call_next(request)
+
+        auth_header = request.headers.get("authorization", "")
+        user = pwd = ""
+        if auth_header.startswith("Basic "):
+            try:
+                user, _, pwd = base64.b64decode(auth_header[6:]).decode().partition(":")
+            except Exception:
+                pass
+
+        if secrets.compare_digest(user, STAGING_AUTH_USER) and secrets.compare_digest(pwd, STAGING_AUTH_PASS):
+            return await call_next(request)
+
+        return Response(status_code=401, headers={"WWW-Authenticate": 'Basic realm="Verktorg staging"'})
+
+
+if STAGING_AUTH_USER and STAGING_AUTH_PASS:
+    app.add_middleware(StagingAuthMiddleware)
 
 app.include_router(auth.router)
 app.include_router(jobs.router)
