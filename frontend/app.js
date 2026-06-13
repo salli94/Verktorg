@@ -570,14 +570,41 @@ document.addEventListener("alpine:init", () => {
 
   Alpine.data("craftsmanList", () => ({
     craftsmen: [],
+    total: 0,
+    page: 1,
+    pageSize: 20,
+    totalPages: 0,
+    filters: { category: "", location: "" },
     loading: true,
 
-    async init() {
+    init() {
+      this.load();
+    },
+
+    async load() {
+      this.loading = true;
+      const p = new URLSearchParams({ page: this.page, page_size: this.pageSize });
+      if (this.filters.category) p.set("category", this.filters.category);
+      if (this.filters.location) p.set("location", this.filters.location);
       try {
-        const res = await api("/craftsmen/?page_size=20");
+        const res = await api("/craftsmen/?" + p.toString());
         this.craftsmen = res.items || [];
+        this.total = res.total;
+        this.totalPages = res.total_pages;
       } catch { this.craftsmen = []; }
       this.loading = false;
+    },
+
+    nextPage() {
+      if (this.page < this.totalPages) { this.page++; this.load(); }
+    },
+    prevPage() {
+      if (this.page > 1) { this.page--; this.load(); }
+    },
+
+    categoryLabel(c) {
+      const labels = { rafvirkjun: "Rafvirkjun", pipulagnir: "Pípulagnir", byggingarvinna: "Byggingarvinna", malun: "Málun", gardyrkja: "Garðyrkja", hreinsun: "Hreinsun", husgagnasmidi: "Húsgagnasmíði", smidi: "Smíði", lagningar: "Lagningar", lagnir: "Lagnir", rafeindaverk: "Rafeindaverk", hjolun: "Hjólun", annad: "Annað" };
+      return labels[c] || c;
     },
   }));
 

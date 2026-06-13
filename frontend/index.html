@@ -3,14 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Verktorg.is tengir þig við staðfesta íslenska fagmenn — rafvirkja, pípara, smiði og fleiri. Öruggt, einfalt og hratt.">
+    <meta property="og:title" content="Verktorg.is — Finndu réttu fagmanninn fyrir verkið">
+    <meta property="og:description" content="Öruggur miðill fyrir íslenska fagmenn og þá sem þurfa á þeim að halda.">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="is_IS">
+    <link rel="icon" type="image/svg+xml" href="/frontend/favicon.svg">
     <title>Verktorg.is — Öruggur miðill fyrir fagmenn</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="/frontend/app.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap');
         * { font-family: 'Inter', sans-serif; }
+        .font-display { font-family: 'Bricolage Grotesque', 'Inter', sans-serif; letter-spacing: -0.02em; }
         [x-cloak] { display: none !important; }
         .hero-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%); }
         .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -40,6 +48,48 @@
         ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
         .notification { position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px; }
         @media (max-width: 640px) { .notification { left: 20px; right: 20px; max-width: none; } }
+
+        /* Ambient hero orbs */
+        .orb { position: absolute; border-radius: 9999px; filter: blur(70px); pointer-events: none; }
+        @keyframes float-a { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(40px, -30px) scale(1.08); } }
+        @keyframes float-b { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-35px, 25px) scale(1.1); } }
+        .orb-1 { animation: float-a 20s ease-in-out infinite; }
+        .orb-2 { animation: float-b 24s ease-in-out infinite; }
+
+        /* Trust badge pulse */
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(96,165,250,0.45); }
+            70% { box-shadow: 0 0 0 8px rgba(96,165,250,0); }
+            100% { box-shadow: 0 0 0 0 rgba(96,165,250,0); }
+        }
+        .badge-pulse { animation: pulse-ring 2.8s ease-out infinite; }
+
+        /* Rotating dashed ring around step numbers */
+        @keyframes spin-slow { to { transform: rotate(360deg); } }
+        .step-ring { position: relative; }
+        .step-ring::after {
+            content: ''; position: absolute; inset: -6px; border-radius: 20px;
+            border: 2px dashed currentColor; opacity: 0.25;
+            animation: spin-slow 40s linear infinite;
+        }
+
+        /* Gentle float for feature icons */
+        @keyframes icon-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .icon-float { animation: icon-bob 3.2s ease-in-out infinite; }
+
+        /* Primary button shine sweep */
+        .btn-primary, .btn-secondary { position: relative; overflow: hidden; }
+        .btn-primary::after {
+            content: ''; position: absolute; top: 0; left: -75%; width: 50%; height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+            transform: skewX(-20deg); transition: left 0.6s ease;
+        }
+        .btn-primary:hover::after { left: 125%; }
+        .btn-primary:active, .btn-secondary:active { transform: scale(0.97); }
+
+        /* Category chip icon motion */
+        .cat-chip:hover .cat-icon { transform: scale(1.2) rotate(-6deg); }
+        .cat-icon { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-block; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased" x-data x-init="$store.app.init()" x-cloak>
@@ -67,10 +117,17 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             <a href="#" @click.prevent="$store.app.view = 'home'" class="flex items-center gap-2 cursor-pointer">
-                <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-bolt text-white text-sm"></i>
-                </div>
-                <span class="font-black text-xl tracking-tight">Verktorg<span class="text-blue-600">.is</span></span>
+                <svg viewBox="0 0 36 36" class="w-9 h-9" aria-hidden="true">
+                    <rect width="36" height="36" rx="10" fill="url(#vtGradNav)"/>
+                    <path d="M11 17 L17 25 L25 11" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <circle cx="25" cy="11" r="2" fill="#f59e0b"/>
+                    <defs>
+                        <linearGradient id="vtGradNav" x1="0" y1="0" x2="36" y2="36">
+                            <stop stop-color="#3b82f6"/><stop offset="1" stop-color="#1e3a8a"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="font-display font-extrabold text-xl tracking-tight">Verktorg<span class="text-blue-600">.is</span></span>
             </a>
 
             <!-- Desktop nav -->
@@ -84,12 +141,12 @@
 
             <div class="flex items-center gap-3">
                 <template x-if="!$store.app.user">
-                    <>
-                        <a href="#" @click.prevent="$store.app.view = 'login'" class="text-slate-600 hover:text-blue-600 font-medium text-sm hidden sm:inline">Innskráning</a>
-                        <button @click="$store.app.view = 'login'; $store.app.__registerMode = true" class="btn-primary text-sm px-5 py-2.5 shadow-lg shadow-blue-500/25">
-                            <i class="fas fa-plus-circle mr-1.5"></i>Nýskráning
-                        </button>
-                    </>
+                    <a href="#" @click.prevent="$store.app.view = 'login'" class="text-slate-600 hover:text-blue-600 font-medium text-sm hidden sm:inline">Innskráning</a>
+                </template>
+                <template x-if="!$store.app.user">
+                    <button @click="$store.app.view = 'login'; $store.app.__registerMode = true" class="btn-primary text-sm px-5 py-2.5 shadow-lg shadow-blue-500/25">
+                        <i class="fas fa-plus-circle mr-1.5"></i>Nýskráning
+                    </button>
                 </template>
                 <template x-if="$store.app.user">
                     <div class="flex items-center gap-3">
@@ -202,13 +259,15 @@
         <!-- Hero -->
         <section class="hero-gradient text-white pt-24 pb-20 md:pt-32 md:pb-28 relative overflow-hidden">
             <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 25% 50%, #3b82f6 0%, transparent 50%), radial-gradient(circle at 75% 50%, #8b5cf6 0%, transparent 50%);"></div>
+            <div class="orb orb-1 w-72 h-72 bg-blue-500/20 -top-10 -left-10"></div>
+            <div class="orb orb-2 w-96 h-96 bg-amber-500/10 bottom-0 right-0"></div>
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div class="max-w-3xl mx-auto text-center">
-                    <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-1.5 mb-6 backdrop-blur-sm">
+                    <div class="badge-pulse inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-1.5 mb-6 backdrop-blur-sm">
                         <i class="fas fa-shield-alt text-blue-300 text-xs"></i>
                         <span class="text-blue-200 text-sm font-medium">Tryggð greiðsla & ábyrgð</span>
                     </div>
-                    <h1 class="text-4xl sm:text-5xl md:text-7xl font-black mb-6 tracking-tight leading-[1.1]">
+                    <h1 class="font-display text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-[1.1]">
                         Finndu réttu <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">fagmanninn</span><br class="hidden sm:block"> fyrir verkið
                     </h1>
                     <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
@@ -236,8 +295,8 @@
                             <p class="text-slate-400 text-sm mb-4">Vinsælir flokkar:</p>
                             <div class="category-grid">
                                 <template x-for="cat in categories.slice(0, 8)" :key="cat.id">
-                                    <button @click="browseCategory(cat)" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-3 transition text-sm">
-                                        <i :class="'fas ' + cat.icon + ' text-blue-400'"></i>
+                                    <button @click="browseCategory(cat)" class="cat-chip flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-3 transition text-sm">
+                                        <i :class="'cat-icon fas ' + cat.icon + ' text-blue-400'"></i>
                                         <span x-text="cat.label"></span>
                                     </button>
                                 </template>
@@ -253,22 +312,22 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16">
                     <span class="badge bg-blue-100 text-blue-700 mb-4">SVONA VIRKAR ÞAÐ</span>
-                    <h2 class="text-3xl sm:text-4xl font-black text-slate-900 mb-4">Þrjú einföld skref</h2>
+                    <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">Þrjú einföld skref</h2>
                     <p class="text-slate-600 max-w-xl mx-auto">Frá beiðni til útskilaðs verks — allt á einum stað.</p>
                 </div>
                 <div class="grid md:grid-cols-3 gap-8">
                     <div class="text-center p-8 card-hover rounded-2xl bg-slate-50 border border-slate-100">
-                        <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-black">1</div>
+                        <div class="step-ring w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-black">1</div>
                         <h3 class="font-bold text-lg mb-2">Lýstu verkefni</h3>
                         <p class="text-slate-600 text-sm leading-relaxed">Segðu okkur hvað þarf að gera, hvar og hvenær. Það tekur 2 mínútur og er ókeypis.</p>
                     </div>
                     <div class="text-center p-8 card-hover rounded-2xl bg-slate-50 border border-slate-100">
-                        <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-black">2</div>
+                        <div class="step-ring w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-black">2</div>
                         <h3 class="font-bold text-lg mb-2">Fáðu tilboð</h3>
                         <p class="text-slate-600 text-sm leading-relaxed">Staðfestir fagmenn í þínu nágrenni senda þér tilboð með verði og tímamati.</p>
                     </div>
                     <div class="text-center p-8 card-hover rounded-2xl bg-slate-50 border border-slate-100">
-                        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-black">3</div>
+                        <div class="step-ring w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-black">3</div>
                         <h3 class="font-bold text-lg mb-2">Veldu og borgaðu</h3>
                         <p class="text-slate-600 text-sm leading-relaxed">Berðu saman, veldu þann sem hentar og greiddu örugglega í gegnum Verktorg.</p>
                     </div>
@@ -281,7 +340,7 @@
             <div class="flex justify-between items-end mb-12">
                 <div>
                     <span class="badge bg-emerald-100 text-emerald-700 mb-4">NÝJUSTU VERKEFNI</span>
-                    <h2 class="text-3xl sm:text-4xl font-black text-slate-900">Nýbirt verkefni</h2>
+                    <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">Nýbirt verkefni</h2>
                 </div>
                 <a href="#" @click.prevent="$store.app.view = 'jobs'" class="text-blue-600 hover:text-blue-700 font-semibold text-sm hidden sm:inline">Sjá öll <i class="fas fa-arrow-right ml-1"></i></a>
             </div>
@@ -328,27 +387,27 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-16">
                     <span class="badge bg-purple-100 text-purple-700 mb-4">AF HVERJU VERKTORG?</span>
-                    <h2 class="text-3xl sm:text-4xl font-black text-slate-900 mb-4">Öruggara en að leita á Facebook</h2>
+                    <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">Öruggara en að leita á Facebook</h2>
                     <p class="text-slate-600 max-w-xl mx-auto">Við skiljum íslenskan verktakamarkað og hönnuðum Verktorg fyrir hann.</p>
                 </div>
                 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4"><i class="fas fa-shield-alt text-xl"></i></div>
+                        <div class="icon-float w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4" style="animation-delay: 0s"><i class="fas fa-shield-alt text-xl"></i></div>
                         <h3 class="font-bold text-sm mb-2">Staðfestir fagmenn</h3>
                         <p class="text-slate-600 text-xs leading-relaxed">Allir fagmenn eru með staðfest réttindi og leyfisbréf.</p>
                     </div>
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4"><i class="fas fa-lock text-xl"></i></div>
+                        <div class="icon-float w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4" style="animation-delay: 0.3s"><i class="fas fa-lock text-xl"></i></div>
                         <h3 class="font-bold text-sm mb-2">Örugg greiðsla</h3>
                         <p class="text-slate-600 text-xs leading-relaxed">Greiðslur vistaðar þar til verki er skilað að fullu.</p>
                     </div>
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-4"><i class="fas fa-star text-xl"></i></div>
+                        <div class="icon-float w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-4" style="animation-delay: 0.6s"><i class="fas fa-star text-xl"></i></div>
                         <h3 class="font-bold text-sm mb-2">Einkunnakerfi</h3>
                         <p class="text-slate-600 text-xs leading-relaxed">Raunverulegir notendur gefa einkunnir — engar falsaðar umsagnir.</p>
                     </div>
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4"><i class="fas fa-calendar text-xl"></i></div>
+                        <div class="icon-float w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4" style="animation-delay: 0.9s"><i class="fas fa-calendar text-xl"></i></div>
                         <h3 class="font-bold text-sm mb-2">Dagatal & framboð</h3>
                         <p class="text-slate-600 text-xs leading-relaxed">Sjáðu hvenær fagmaður er laus og bókaðu beint.</p>
                     </div>
@@ -361,7 +420,7 @@
             <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-12">
                     <span class="badge bg-amber-100 text-amber-700 mb-4">TENGTU VIÐ FAGMENN</span>
-                    <h2 class="text-3xl sm:text-4xl font-black text-slate-900">Helstu fagmenn á Verktorg</h2>
+                    <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">Helstu fagmenn á Verktorg</h2>
                 </div>
                 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <template x-for="craftsman in topCraftsmen.slice(0, 4)" :key="craftsman.user_id">
@@ -382,9 +441,10 @@
         </template>
 
         <!-- CTA -->
-        <section class="py-20 hero-gradient text-white">
-            <div class="max-w-3xl mx-auto text-center px-4">
-                <h2 class="text-3xl sm:text-4xl font-black mb-6">Ertu fagmaður?</h2>
+        <section class="py-20 hero-gradient text-white relative overflow-hidden">
+            <div class="orb orb-1 w-80 h-80 bg-blue-500/15 -top-20 right-1/4"></div>
+            <div class="max-w-3xl mx-auto text-center px-4 relative z-10">
+                <h2 class="font-display text-3xl sm:text-4xl font-extrabold mb-6">Ertu fagmaður?</h2>
                 <p class="text-lg text-slate-300 mb-8">Búðu til prófíl, stilltu framboð og fáðu verkefni sem passa þér. Ekkert áskriftargjald — borgaðu bara þegar þu vinnur.</p>
                 <button @click="$store.app.view = 'login'; $store.app.__registerMode = true; $store.app.__registerRole = 'craftsman'" class="bg-amber-500 text-slate-900 font-bold px-8 py-4 rounded-xl hover:bg-amber-400 transition shadow-2xl shadow-amber-500/20 text-lg">
                     <i class="fas fa-briefcase mr-2"></i> Búa til fagmannsprófíl
@@ -396,10 +456,17 @@
         <footer class="bg-slate-900 text-slate-400 py-12">
             <div class="max-w-7xl mx-auto px-4 text-center text-sm">
                 <div class="flex items-center justify-center gap-2 mb-4">
-                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-bolt text-white text-xs"></i>
-                    </div>
-                    <span class="font-black text-white text-lg">Verktorg<span class="text-blue-500">.is</span></span>
+                    <svg viewBox="0 0 36 36" class="w-8 h-8" aria-hidden="true">
+                        <rect width="36" height="36" rx="10" fill="url(#vtGradFooter)"/>
+                        <path d="M11 17 L17 25 L25 11" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <circle cx="25" cy="11" r="2" fill="#f59e0b"/>
+                        <defs>
+                            <linearGradient id="vtGradFooter" x1="0" y1="0" x2="36" y2="36">
+                                <stop stop-color="#3b82f6"/><stop offset="1" stop-color="#1e3a8a"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="font-display font-extrabold text-white text-lg">Verktorg<span class="text-blue-500">.is</span></span>
                 </div>
                 <p>Öruggur miðill fyrir íslenska fagmenn og þá sem þurfa á þeim að halda.</p>
                 <p class="mt-2 text-xs">&copy; 2026 Verktorg.is — Allur réttur áskilinn.</p>
@@ -415,7 +482,7 @@
             <!-- Filters bar -->
             <div class="flex flex-col sm:flex-row gap-3 mb-8 items-start sm:items-end">
                 <div class="flex-1 w-full">
-                    <h1 class="text-2xl sm:text-3xl font-black text-slate-900">Verkefni</h1>
+                    <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900">Verkefni</h1>
                     <p class="text-slate-500 text-sm mt-1" x-text="total + ' verkefni i boði'"></p>
                 </div>
                 <div class="flex flex-wrap gap-2 w-full sm:w-auto">
@@ -497,6 +564,109 @@
     </main>
 </template>
 
+<!-- PAGE: CRAFTSMEN DIRECTORY -->
+<template x-if="$store.app.view === 'craftsmen'">
+    <main class="pt-20 pb-20 md:pb-8 animate-fade-in" x-data="craftsmanList()">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Filters bar -->
+            <div class="flex flex-col sm:flex-row gap-3 mb-8 items-start sm:items-end">
+                <div class="flex-1 w-full">
+                    <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900">Fagmenn</h1>
+                    <p class="text-slate-500 text-sm mt-1" x-text="total + ' fagmenn skráðir'"></p>
+                </div>
+                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                    <select x-model="filters.category" @change="page=1; load()" class="input-field text-sm py-2.5 w-auto min-w-[150px]">
+                        <option value="">Allir flokkar</option>
+                        <option value="rafvirkjun">Rafvirkjun</option>
+                        <option value="pipulagnir">Pípulagnir</option>
+                        <option value="byggingarvinna">Byggingarvinna</option>
+                        <option value="malun">Málun</option>
+                        <option value="gardyrkja">Garðyrkja</option>
+                        <option value="hreinsun">Hreinsun</option>
+                        <option value="husgagnasmidi">Húsgagnasmíði</option>
+                        <option value="annad">Annað</option>
+                    </select>
+                    <div class="relative">
+                        <i class="fas fa-map-marker-alt absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" x-model="filters.location" @keydown.enter="page=1; load()" @blur="page=1; load()"
+                            placeholder="Staðsetning" class="input-field text-sm py-2.5 pl-9 w-auto min-w-[150px]">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <template x-if="loading">
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <template x-for="i in 8">
+                        <div class="rounded-2xl p-6 bg-white border border-slate-100">
+                            <div class="skeleton w-14 h-14 rounded-full mb-4"></div>
+                            <div class="skeleton h-4 w-3/4 mb-2"></div>
+                            <div class="skeleton h-3 w-1/2 mb-3"></div>
+                            <div class="skeleton h-3 w-full"></div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Empty -->
+            <template x-if="!loading && craftsmen.length === 0">
+                <div class="text-center py-20">
+                    <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-user-hard-hat text-slate-300 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-600">Engir fagmenn fundust</h3>
+                    <p class="text-slate-500 mt-2">Reyndu að breyta leitarskilyrðum.</p>
+                </div>
+            </template>
+
+            <!-- Grid -->
+            <template x-if="!loading && craftsmen.length">
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <template x-for="craftsman in craftsmen" :key="craftsman.user_id">
+                        <div class="bg-white rounded-2xl border border-slate-100 p-6 card-hover text-center">
+                            <div class="relative w-16 h-16 mx-auto mb-4">
+                                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                                    <span x-text="craftsman.user?.full_name?.charAt(0) || '?'"></span>
+                                </div>
+                                <template x-if="craftsman.is_verified">
+                                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center" title="Staðfestur fagmaður">
+                                        <i class="fas fa-check text-white text-[10px]"></i>
+                                    </div>
+                                </template>
+                            </div>
+                            <h3 class="font-bold text-slate-900" x-text="craftsman.user?.full_name"></h3>
+                            <p class="text-sm text-blue-600 font-medium mt-1" x-text="categoryLabel(craftsman.trade_category)"></p>
+                            <p class="text-slate-500 text-sm mt-1"><i class="fas fa-map-marker-alt mr-1"></i><span x-text="craftsman.location || 'Ísland'"></span></p>
+                            <template x-if="craftsman.years_experience">
+                                <p class="text-slate-400 text-xs mt-1"><span x-text="craftsman.years_experience"></span> ára reynsla</p>
+                            </template>
+                            <template x-if="craftsman.description">
+                                <p class="text-slate-600 text-xs leading-relaxed mt-3 line-clamp-2" x-text="craftsman.description"></p>
+                            </template>
+                            <template x-if="craftsman.hourly_rate">
+                                <p class="text-slate-900 font-bold mt-3 pt-3 border-t border-slate-100"><span x-text="craftsman.hourly_rate.toLocaleString()"></span> kr./klst</p>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Pagination -->
+            <template x-if="totalPages > 1">
+                <div class="flex justify-center items-center gap-4 mt-12">
+                    <button @click="prevPage()" :disabled="page === 1" class="px-5 py-2.5 rounded-xl border border-slate-200 font-medium text-sm hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-left mr-1"></i> Fyrri
+                    </button>
+                    <span class="text-sm text-slate-500 font-medium" x-text="'Síða ' + page + ' af ' + totalPages"></span>
+                    <button @click="nextPage()" :disabled="page === totalPages" class="px-5 py-2.5 rounded-xl border border-slate-200 font-medium text-sm hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        Næsta <i class="fas fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+            </template>
+        </div>
+    </main>
+</template>
+
 <!-- PAGE: JOB DETAIL -->
 <template x-if="$store.app.view === 'job-detail'">
     <main class="pt-20 pb-20 animate-fade-in" x-data="jobDetail()">
@@ -518,7 +688,7 @@
                                 <span class="badge bg-blue-50 text-blue-700" x-text="categoryLabel(job.category)"></span>
                                 <span class="badge" :class="job.status === 'open' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-50 text-slate-600'" x-text="job.status === 'open' ? 'Opið' : job.status === 'in_progress' ? 'Í vinnslu' : 'Lokið'"></span>
                             </div>
-                            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 mb-4" x-text="job.title"></h1>
+                            <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 mb-4" x-text="job.title"></h1>
                             <p class="text-slate-600 leading-relaxed whitespace-pre-line" x-text="job.description"></p>
                         </div>
 
@@ -645,7 +815,7 @@
                 <div class="flex items-center gap-3 mb-8">
                     <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-plus-circle text-xl"></i></div>
                     <div>
-                        <h1 class="text-2xl font-black text-slate-900">Lýsa verkefni</h1>
+                        <h1 class="font-display text-2xl font-extrabold text-slate-900">Lýsa verkefni</h1>
                         <p class="text-slate-500 text-sm">Ókeypis. Tekur 2 mínútur.</p>
                     </div>
                 </div>
@@ -720,10 +890,17 @@
         <div class="max-w-md mx-auto px-4 w-full">
             <div class="bg-white rounded-2xl border border-slate-100 p-8 shadow-sm">
                 <div class="text-center mb-8">
-                    <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-bolt text-white text-2xl"></i>
-                    </div>
-                    <h1 class="text-2xl font-black text-slate-900" x-text="isLogin ? 'Innskráning' : 'Nýskráning'"></h1>
+                    <svg viewBox="0 0 36 36" class="w-14 h-14 mx-auto mb-4" aria-hidden="true">
+                        <rect width="36" height="36" rx="10" fill="url(#vtGradLogin)"/>
+                        <path d="M11 17 L17 25 L25 11" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                        <circle cx="25" cy="11" r="2" fill="#f59e0b"/>
+                        <defs>
+                            <linearGradient id="vtGradLogin" x1="0" y1="0" x2="36" y2="36">
+                                <stop stop-color="#3b82f6"/><stop offset="1" stop-color="#1e3a8a"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <h1 class="font-display text-2xl font-extrabold text-slate-900" x-text="isLogin ? 'Innskráning' : 'Nýskráning'"></h1>
                     <p class="text-slate-500 text-sm mt-1" x-text="isLogin ? 'Velkomin/n aftur!' : 'Búðu til aðgang að Verktorg.is'"></p>
                 </div>
 
@@ -799,7 +976,7 @@
                     <span x-text="$store.app.user?.full_name?.charAt(0) || '?'"></span>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black text-slate-900">Mín síða</h1>
+                    <h1 class="font-display text-2xl font-extrabold text-slate-900">Mín síða</h1>
                     <p class="text-slate-500 text-sm" x-text="$store.app.user?.email"></p>
                 </div>
             </div>
@@ -1006,7 +1183,7 @@
                 <div class="flex items-center gap-3 mb-8">
                     <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center"><i class="fas fa-briefcase text-xl"></i></div>
                     <div>
-                        <h1 class="text-2xl font-black text-slate-900">Fagmannsprófíll</h1>
+                        <h1 class="font-display text-2xl font-extrabold text-slate-900">Fagmannsprófíll</h1>
                         <p class="text-slate-500 text-sm">Stilla hvernig þú birtist viðskiptavinum.</p>
                     </div>
                 </div>
