@@ -4,1289 +4,494 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
-    <meta name="description" content="Verktorg.is tengir þig við staðfesta íslenska fagmenn — rafvirkja, pípara, smiði og fleiri. Öruggt, einfalt og hratt.">
-    <meta property="og:title" content="Verktorg.is — Finndu réttu fagmanninn fyrir verkið">
-    <meta property="og:description" content="Öruggur miðill fyrir íslenska fagmenn og þá sem þurfa á þeim að halda.">
-    <meta property="og:type" content="website">
-    <meta property="og:locale" content="is_IS">
+    <meta name="description" content="Verktorg.is — Íslenskt markaðstorg fyrir fagmenn og verkefni. Tengdu þig við rétta fagmanninn.">
+    <meta property="og:title" content="Verktorg.is — Finndu réttu fagmanninn">
+    <meta property="og:description" content="Markaðstorg fyrir íslenska fagmenn og verkefni.">
     <link rel="icon" type="image/svg+xml" href="/frontend/favicon.svg">
-    <title>Verktorg.is — Öruggur miðill fyrir fagmenn</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/frontend/app.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <title>Verktorg.is — Markaðstorg fagmanna</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap');
-        * { font-family: 'Inter', sans-serif; }
-        .font-display { font-family: 'Bricolage Grotesque', 'Inter', sans-serif; letter-spacing: -0.02em; }
-        [x-cloak] { display: none !important; }
-        .hero-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%); }
-        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15); }
-        .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-        .glass-dark { background: rgba(15,23,42,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-        .btn-primary { background: #2563eb; color: white; font-weight: 600; border-radius: 12px; padding: 12px 28px; transition: all 0.2s; }
-        .btn-primary:hover { background: #1d4ed8; transform: scale(1.02); }
-        .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-weight: 600; border-radius: 12px; padding: 12px 28px; transition: all 0.2s; }
-        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
-        .badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-        .input-field { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 0.95rem; transition: all 0.2s; background: white; }
-        .input-field:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
-        .input-error { border-color: #ef4444; }
-        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
-        .animate-slide-up { animation: slideUp 0.4s ease-out; }
-        .animate-slide-down { animation: slideDown 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
-        @media (min-width: 768px) { .category-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
-        .skeleton { background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
-        .notification { position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px; }
-        @media (max-width: 640px) { .notification { left: 20px; right: 20px; max-width: none; } }
-
-        /* Ambient hero orbs */
-        .orb { position: absolute; border-radius: 9999px; filter: blur(70px); pointer-events: none; }
-        @keyframes float-a { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(40px, -30px) scale(1.08); } }
-        @keyframes float-b { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-35px, 25px) scale(1.1); } }
-        .orb-1 { animation: float-a 20s ease-in-out infinite; }
-        .orb-2 { animation: float-b 24s ease-in-out infinite; }
-
-        /* Trust badge pulse */
-        @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(96,165,250,0.45); }
-            70% { box-shadow: 0 0 0 8px rgba(96,165,250,0); }
-            100% { box-shadow: 0 0 0 0 rgba(96,165,250,0); }
-        }
-        .badge-pulse { animation: pulse-ring 2.8s ease-out infinite; }
-
-        /* Rotating dashed ring around step numbers */
-        @keyframes spin-slow { to { transform: rotate(360deg); } }
-        .step-ring { position: relative; }
-        .step-ring::after {
-            content: ''; position: absolute; inset: -6px; border-radius: 20px;
-            border: 2px dashed currentColor; opacity: 0.25;
-            animation: spin-slow 40s linear infinite;
-        }
-
-        /* Gentle float for feature icons */
-        @keyframes icon-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-        .icon-float { animation: icon-bob 3.2s ease-in-out infinite; }
-
-        /* Custom animated icon set (category chips + trust icons) */
-        .ic-pulse, .ic-swing, .ic-grow, .ic-spin { transform-box: fill-box; transform-origin: center; }
-        @keyframes ic-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(1.2); } }
-        .ic-pulse { animation: ic-pulse 2.2s ease-in-out infinite; }
-        @keyframes ic-swing { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-16deg); } }
-        .ic-swing { animation: ic-swing 2.6s ease-in-out infinite; }
-        @keyframes ic-grow { 0%, 100% { transform: scaleY(.82); opacity: .8; } 50% { transform: scaleY(1); opacity: 1; } }
-        .ic-grow { animation: ic-grow 3.2s ease-in-out infinite; transform-origin: bottom center; }
-        @keyframes ic-draw { 0%, 35% { stroke-dashoffset: 14; } 65%, 100% { stroke-dashoffset: 0; } }
-        .ic-draw { animation: ic-draw 2.8s ease-in-out infinite; }
-        @keyframes ic-drip { 0% { transform: translateY(-3px); opacity: 0; } 25% { opacity: 1; } 70% { transform: translateY(5px); opacity: 0; } 100% { transform: translateY(5px); opacity: 0; } }
-        .ic-drip { animation: ic-drip 2s ease-in infinite; }
-        .ic-spin { animation: spin-slow 7s linear infinite; }
-
-        /* Primary button shine sweep */
-        .btn-primary, .btn-secondary { position: relative; overflow: hidden; }
-        .btn-primary::after {
-            content: ''; position: absolute; top: 0; left: -75%; width: 50%; height: 100%;
-            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
-            transform: skewX(-20deg); transition: left 0.6s ease;
-        }
-        .btn-primary:hover::after { left: 125%; }
-        .btn-primary:active, .btn-secondary:active { transform: scale(0.97); }
-
-        /* Category chip icon motion */
-        .cat-chip:hover .cat-icon { transform: scale(1.2) rotate(-6deg); }
-        .cat-icon { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-block; }
-
-        /* Respect users who've asked for less motion */
-        @media (prefers-reduced-motion: reduce) {
-            .orb, .badge-pulse, .step-ring::after, .icon-float,
-            .ic-pulse, .ic-swing, .ic-grow, .ic-draw, .ic-drip, .ic-spin,
-            .btn-primary::after {
-                animation: none !important;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/frontend/css/styles.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased" x-data x-init="$store.app.init()" x-cloak>
+<body class="bg-slate-50 antialiased" x-data="verktorg()" x-init="init()" x-cloak>
 
-<!-- Notification -->
-<template x-teleport="body">
-    <div class="notification" x-show="$store.app.notification" x-transition.duration.300ms>
-        <div :class="'px-5 py-4 rounded-2xl shadow-2xl border font-medium animate-slide-down ' + (
-            $store.app.notification?.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' :
-            $store.app.notification?.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
-            'bg-white border-slate-200 text-slate-800'
-        )">
-            <div class="flex items-center gap-3">
-                <i :class="$store.app.notification?.type === 'success' ? 'fas fa-check-circle text-emerald-500' :
-                          $store.app.notification?.type === 'error' ? 'fas fa-exclamation-circle text-red-500' :
-                          'fas fa-info-circle text-blue-500'" class="text-lg"></i>
-                <span x-text="$store.app.notification?.msg"></span>
-            </div>
-        </div>
-    </div>
-</template>
+<!-- ==================================================================
+     NOTIFICATION TOAST
+     ================================================================== -->
+<div class="toast" x-show="notification" x-transition>
+    <div :class="'toast-item toast-'+notification.type" x-text="notification.msg"></div>
+</div>
 
-<!-- NAVBAR -->
-<nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-slate-200/80">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-            <a href="#" @click.prevent="$store.app.view = 'home'" class="flex items-center gap-2 cursor-pointer">
-                <svg viewBox="0 0 36 36" class="w-9 h-9" aria-hidden="true">
-                    <rect width="36" height="36" rx="10" fill="url(#vtGradNav)"/>
-                    <path d="M11 17 L17 25 L25 11" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                    <circle cx="25" cy="11" r="2" fill="#f59e0b"/>
-                    <defs>
-                        <linearGradient id="vtGradNav" x1="0" y1="0" x2="36" y2="36">
-                            <stop stop-color="#3b82f6"/><stop offset="1" stop-color="#1e3a8a"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-                <span class="font-display font-extrabold text-xl tracking-tight">Verktorg<span class="text-blue-600">.is</span></span>
-            </a>
-
-            <!-- Desktop nav -->
-            <div class="hidden md:flex items-center gap-8">
-                <a href="#" @click.prevent="$store.app.view = 'jobs'" class="text-slate-600 hover:text-blue-600 font-medium transition text-sm">Verkefni</a>
-                <a href="#" @click.prevent="$store.app.view = 'craftsmen'" class="text-slate-600 hover:text-blue-600 font-medium transition text-sm">Fagmenn</a>
-                <template x-if="$store.app.user">
-                    <a href="#" @click.prevent="$store.app.view = 'dashboard'" class="text-slate-600 hover:text-blue-600 font-medium transition text-sm">Mín síða</a>
-                </template>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <template x-if="!$store.app.user">
-                    <a href="#" @click.prevent="$store.app.view = 'login'" class="text-slate-600 hover:text-blue-600 font-medium text-sm hidden sm:inline">Innskráning</a>
-                </template>
-                <template x-if="!$store.app.user">
-                    <button @click="$store.app.view = 'login'; $store.app.__registerMode = true" class="btn-primary text-sm px-5 py-2.5 shadow-lg shadow-blue-500/25">
-                        <i class="fas fa-plus-circle mr-1.5"></i>Nýskráning
-                    </button>
-                </template>
-                <template x-if="$store.app.user">
-                    <div class="flex items-center gap-3">
-                        <button @click="$store.app.view = 'post-job'" class="btn-primary text-sm px-5 py-2.5 shadow-lg shadow-blue-500/25 hidden sm:flex items-center gap-1.5">
-                            <i class="fas fa-plus"></i> Lýsa verkefni
-                        </button>
-                        <!-- Notification bell -->
-                        <div class="relative" x-data="{ open: false }" @click.outside="open = false">
-                            <button @click="open = !open" class="relative w-9 h-9 rounded-xl flex items-center justify-center hover:bg-slate-100 transition">
-                                <i class="fas fa-bell text-slate-600 text-lg"></i>
-                                <template x-if="$store.app.unreadCount > 0">
-                                    <span class="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center min-w-[18px] min-h-[18px] leading-none shadow-sm" x-text="$store.app.unreadCount > 99 ? '99+' : $store.app.unreadCount"></span>
-                                </template>
-                            </button>
-                            <!-- Notification dropdown -->
-                            <div x-show="open" class="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-100 animate-slide-down max-h-[70vh] flex flex-col">
-                                <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 shrink-0">
-                                    <span class="font-bold text-sm">Tilkynningar</span>
-                                    <div class="flex gap-2">
-                                        <template x-if="$store.app.unreadCount > 0">
-                                            <button @click="$store.app.markAllNotifRead(); open = true" class="text-xs text-blue-600 hover:text-blue-800 font-medium">Merkja allt lesið</button>
-                                        </template>
-                                        <button @click="open = false" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
-                                    </div>
-                                </div>
-                                <div class="overflow-y-auto flex-1">
-                                    <template x-if="$store.app.notifications.length === 0">
-                                        <div class="p-8 text-center text-slate-400">
-                                            <i class="fas fa-bell text-3xl mb-3 opacity-40"></i>
-                                            <p class="text-sm">Engar tilkynningar</p>
-                                        </div>
-                                    </template>
-                                    <template x-for="n in $store.app.notifications" :key="n.id">
-                                        <div @click="$store.app.markNotifRead(n.id)" :class="'flex items-start gap-3 px-4 py-3 border-b border-slate-50 cursor-pointer transition ' + (n.is_read ? 'hover:bg-slate-50' : 'bg-blue-50/50 hover:bg-blue-50')">
-                                            <div class="mt-0.5">
-                                                <i :class="n.type === 'new_bid' ? 'fas fa-hand-holding-usd text-green-500' : n.type === 'bid_accepted' ? 'fas fa-check-circle text-blue-500' : n.type === 'job_completed' ? 'fas fa-flag-checkered text-emerald-500' : 'fas fa-info-circle text-slate-400'" class="text-base"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-slate-800 leading-snug" x-text="n.message"></p>
-                                                <p class="text-xs text-slate-400 mt-0.5" x-text="new Date(n.created_at).toLocaleDateString('is-IS', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })"></p>
-                                            </div>
-                                            <template x-if="!n.is_read">
-                                                <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></span>
-                                            </template>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" class="w-9 h-9 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center font-bold text-sm hover:bg-blue-200 transition">
-                                <span x-text="$store.app.user.full_name.charAt(0).toUpperCase()"></span>
-                            </button>
-                            <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 animate-slide-down">
-                                <div class="px-4 py-2 border-b border-slate-100">
-                                    <p class="font-semibold text-sm" x-text="$store.app.user.full_name"></p>
-                                    <p class="text-xs text-slate-500" x-text="$store.app.user.email"></p>
-                                </div>
-                                <a href="#" @click.prevent="$store.app.view = 'dashboard'; open = false" class="block px-4 py-2.5 text-sm hover:bg-slate-50 transition">Mín síða</a>
-                                <a href="#" @click.prevent="$store.app.view = 'post-job'; open = false" class="block px-4 py-2.5 text-sm hover:bg-slate-50 transition">Lýsa verkefni</a>
-                                <template x-if="$store.app.user.role === 'craftsman'">
-                                    <a href="#" @click.prevent="$store.app.view = 'craftsman-setup'; open = false" class="block px-4 py-2.5 text-sm hover:bg-slate-50 transition">Prófíll stillingar</a>
-                                </template>
-                                <hr class="my-1">
-                                <button @click="$store.app.logout(); open = false" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">Útskráning</button>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
+<!-- ==================================================================
+     NAVBAR
+     ================================================================== -->
+<nav class="nav" x-show="view !== 'home'">
+    <div class="nav-inner">
+        <a href="#" @click.prevent="navigate('home')" class="nav-logo">
+            <svg viewBox="0 0 44 44"><rect x="2" y="2" width="40" height="40" rx="12" fill="#0f172a" stroke="#2563eb" stroke-width="1.5"/><path d="M13 24l6 6 12-16" stroke="#3b82f6" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+            Verktorg.is
+        </a>
+        <div class="nav-links">
+            <button class="nav-link" :class="{active:view==='marketplace'}" @click="navigate('marketplace')">
+                <i class="fas fa-search"></i> Leita
+            </button>
+            <button class="nav-link" :class="{active:view==='craftsmen'}" @click="navigate('craftsmen')">
+                <i class="fas fa-hard-hat"></i> Fagmenn
+            </button>
+            <template x-if="user">
+                <button class="nav-link" :class="{active:view==='dashboard'}" @click="navigate('dashboard')">
+                    <i class="fas fa-user"></i> Mín síða
+                </button>
+            </template>
+            <template x-if="!user">
+                <button class="nav-btn nav-btn-blue" @click="showAuth = true">Skrá inn</button>
+            </template>
+            <template x-if="user">
+                <button class="nav-btn nav-btn-outline" @click="logout()">Útskrá</button>
+            </template>
         </div>
     </div>
 </nav>
 
-<!-- Mobile bottom nav -->
-<div class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 md:hidden">
-    <div class="flex justify-around py-2">
-        <button @click="$store.app.view = 'home'" class="flex flex-col items-center gap-0.5 px-4 py-1" :class="$store.app.view === 'home' ? 'text-blue-600' : 'text-slate-400'">
-            <i class="fas fa-home text-lg"></i>
-            <span class="text-[10px] font-medium">Heim</span>
-        </button>
-        <button @click="$store.app.view = 'jobs'" class="flex flex-col items-center gap-0.5 px-4 py-1" :class="$store.app.view === 'jobs' ? 'text-blue-600' : 'text-slate-400'">
-            <i class="fas fa-search text-lg"></i>
-            <span class="text-[10px] font-medium">Verkefni</span>
-        </button>
-        <button @click="$store.app.view = 'post-job'" class="flex flex-col items-center gap-0.5 px-4 py-1 -mt-3" :class="$store.app.view === 'post-job' ? 'text-blue-600' : 'text-slate-400'">
-            <div class="w-11 h-11 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
-                <i class="fas fa-plus text-lg"></i>
+<!-- ==================================================================
+     HOME — Landing Page
+     ================================================================== -->
+<template x-if="view === 'home'">
+<div>
+    <div class="hero" style="min-height:calc(100vh - 0px)">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <div class="hero-badge"><i class="fas fa-bolt"></i> Nýtt markaðstorg á Íslandi</div>
+            <h1>Finndu <span>réttu fagmanninn</span> fyrir verkið</h1>
+            <p>Verktorg tengir þig við íslenska iðnaðarmenn, verktaka og sérfræðinga. Leggðu inn verkefni og fáðu tilboð — eða skráðu þig sem fagmaður og finndu næsta verkefni.</p>
+            <div class="hero-buttons">
+                <button class="hero-btn hero-btn-primary" @click="navigate('marketplace')">
+                    <i class="fas fa-search"></i> Skoða verkefni
+                </button>
+                <button class="hero-btn hero-btn-secondary" @click="showAuth = true">
+                    <i class="fas fa-user-plus"></i> Skrá mig sem fagmann
+                </button>
             </div>
-            <span class="text-[10px] font-medium">Nýtt</span>
-        </button>
-        <template x-if="$store.app.user">
-            <button @click="$store.app.view = 'dashboard'" class="flex flex-col items-center gap-0.5 px-4 py-1" :class="$store.app.view === 'dashboard' ? 'text-blue-600' : 'text-slate-400'">
-                <i class="fas fa-user text-lg"></i>
-                <span class="text-[10px] font-medium">Mín síða</span>
+            <div class="hero-stats">
+                <div class="hero-stat"><div class="hero-stat-value" x-text="stats.jobs">0</div><div class="hero-stat-label">Verkefni</div></div>
+                <div class="hero-stat"><div class="hero-stat-value" x-text="stats.craftsmen">0</div><div class="hero-stat-label">Fagmenn</div></div>
+                <div class="hero-stat"><div class="hero-stat-value" x-text="stats.categories">13</div><div class="hero-stat-label">Sérsvið</div></div>
+            </div>
+        </div>
+    </div>
+    <!-- How it works -->
+    <div class="section" style="background:white">
+        <div class="section-header"><h2>Hvernig virkar þetta?</h2><p>Einfalt ferli í þremur skrefum</p></div>
+        <div class="steps">
+            <div class="step-card"><div class="step-number">1</div><h3>Skráðu þig</h3><p>Búðu til aðgang, veldu hvort þú ert viðskiptavinur eða fagmaður.</p></div>
+            <div class="step-card"><div class="step-number">2</div><h3>Leggðu fram verk</h3><p>Lýstu verkefninu, veldu flokk og staðsetningu. Eða skráðu lausa tíma sem fagmaður.</p></div>
+            <div class="step-card"><div class="step-number">3</div><h3>Fáðu tilboð</h3><p>Fagmenn senda tilboð í verkið. Þú velur þann sem hentar best.</p></div>
+        </div>
+        <div class="text-center mt-8">
+            <button class="hero-btn hero-btn-primary" @click="navigate('marketplace')">
+                <i class="fas fa-arrow-right"></i> Fara á markaðstorg
             </button>
+        </div>
+    </div>
+</div>
+</template>
+
+<!-- ==================================================================
+     MARKETPLACE
+     ================================================================== -->
+<template x-if="view === 'marketplace'">
+<div class="section" style="padding-top:96px">
+    <div class="market-header">
+        <h2 class="market-title"><i class="fas fa-briefcase" style="color:var(--vt-blue);margin-right:10px"></i> Verkefni</h2>
+        <div class="market-filters">
+            <input type="text" class="filter-search" placeholder="Leita að verkefnum..." x-model="filterSearch" @input.debounce.300ms="loadJobs()">
+            <select class="filter-select" x-model="filterCategory" @change="loadJobs()">
+                <option value="">Allir flokkar</option>
+                <template x-for="cat in categories" :key="cat.value">
+                    <option :value="cat.value" x-text="cat.label"></option>
+                </template>
+            </select>
+            <select class="filter-select" x-model="filterSort" @change="loadJobs()">
+                <option value="newest">Nýjustu fyrst</option>
+                <option value="oldest">Elstu fyrst</option>
+                <option value="budget_high">Hæsta upphæð</option>
+                <option value="budget_low">Lægsta upphæð</option>
+            </select>
+            <button class="btn btn-primary" @click="showPostJob = true" x-show="user">
+                <i class="fas fa-plus"></i> Leggja fram verk
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div x-show="loading.jobs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px">
+        <template x-for="i in 3"><div style="height:200px" class="skeleton"></div></template>
+    </div>
+
+    <!-- Job Grid -->
+    <div class="job-grid" x-show="!loading.jobs && jobs.length > 0">
+        <template x-for="job in jobs" :key="job.id">
+            <div class="job-card">
+                <div class="job-card-header">
+                    <div>
+                        <span class="job-category" x-text="categoryLabel(job.category)"></span>
+                        <span x-show="countdown(job).urgent" class="countdown urgent" style="margin-left:8px">
+                            <i class="fas fa-clock"></i> <span x-text="countdown(job).text"></span>
+                        </span>
+                    </div>
+                    <span x-show="countdown(job).days < 3 && !countdown(job).urgent" class="countdown soon">
+                        <i class="fas fa-clock"></i> <span x-text="countdown(job).text"></span>
+                    </span>
+                </div>
+                <div class="job-title" x-text="job.title"></div>
+                <div class="job-desc" x-text="job.description"></div>
+                <div class="job-meta">
+                    <span><i class="fas fa-map-marker-alt"></i> <span x-text="job.location || 'Ísland'"></span></span>
+                    <span><i class="fas fa-calendar"></i> <span x-text="formatDate(job.created_at)"></span></span>
+                    <span><i class="fas fa-file-signature"></i> <span x-text="(job.bid_count||0)+' tilboð'"></span></span>
+                </div>
+                <div class="job-footer">
+                    <div class="job-budget" x-show="job.is_fixed_price" x-text="formatISK(job.budget_min)"></div>
+                    <div class="job-budget" x-show="!job.is_fixed_price">
+                        <span x-text="formatISK(job.budget_min)"></span> — <span x-text="formatISK(job.budget_max)"></span>
+                    </div>
+                    <button class="btn btn-primary btn-sm" @click="viewJob(job)">Skoða</button>
+                </div>
+            </div>
         </template>
-        <template x-if="!$store.app.user">
-            <button @click="$store.app.view = 'login'" class="flex flex-col items-center gap-0.5 px-4 py-1" :class="$store.app.view === 'login' ? 'text-blue-600' : 'text-slate-400'">
-                <i class="fas fa-sign-in-alt text-lg"></i>
-                <span class="text-[10px] font-medium">Innskrá</span>
-            </button>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" x-show="!loading.jobs && jobs.length === 0">
+        <i class="fas fa-search"></i><p>Engin verkefni fundust</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" x-show="totalPages > 1">
+        <button :disabled="page <= 1" @click="page--; loadJobs()"><i class="fas fa-chevron-left"></i></button>
+        <span class="pagination-info" x-text="'Síða '+page+' af '+totalPages"></span>
+        <button :disabled="page >= totalPages" @click="page++; loadJobs()"><i class="fas fa-chevron-right"></i></button>
+    </div>
+</div>
+</template>
+
+<!-- ==================================================================
+     CRAFTSMEN DIRECTORY
+     ================================================================== -->
+<template x-if="view === 'craftsmen'">
+<div class="section" style="padding-top:96px">
+    <div class="market-header">
+        <h2 class="market-title"><i class="fas fa-hard-hat" style="color:var(--vt-amber);margin-right:10px"></i> Fagmenn</h2>
+        <div class="market-filters">
+            <input type="text" class="filter-search" placeholder="Leita eftir nafni eða stað..." x-model="craftFilter" @input.debounce.300ms="loadCraftsmen()">
+            <select class="filter-select" x-model="craftCategory" @change="loadCraftsmen()">
+                <option value="">Allir flokkar</option>
+                <template x-for="cat in categories" :key="cat.value">
+                    <option :value="cat.value" x-text="cat.label"></option>
+                </template>
+            </select>
+        </div>
+    </div>
+    <div class="craft-grid" x-show="!loading.craftsmen">
+        <template x-for="c in craftsmen" :key="c.user_id">
+            <div class="craft-card">
+                <div class="craft-avatar" x-text="c.full_name?.[0] || '?'"></div>
+                <div class="craft-name" x-text="c.full_name"></div>
+                <div class="craft-trade" x-text="categoryLabel(c.trade_category)"></div>
+                <div class="craft-location"><i class="fas fa-map-marker-alt"></i> <span x-text="c.location || 'Ísland'"></span></div>
+                <div class="craft-rate" x-text="formatISK(c.hourly_rate)+'/klst'" x-show="c.hourly_rate"></div>
+                <div class="craft-stars" x-show="c.avg_rating">
+                    <template x-for="i in 5"><i :class="i <= Math.round(c.avg_rating) ? 'fas fa-star' : 'far fa-star'"></i></template>
+                    <span style="color:var(--vt-text-muted);font-size:12px;margin-left:4px" x-text="'('+(c.review_count||0)+')'"></span>
+                </div>
+                <div :class="'craft-badge '+(c.is_available ? 'available' : 'busy')" x-text="c.is_available ? 'Laus' : 'Upptekinn'"></div>
+                <button class="btn btn-primary btn-sm btn-full" style="margin-top:14px" @click="viewCraftsman(c)">Skoða</button>
+            </div>
         </template>
     </div>
 </div>
+</template>
 
-<!-- PAGE: HOME / LANDING -->
-<template x-if="$store.app.view === 'home'">
-    <main x-data="landing()" class="animate-fade-in">
-        <!-- Hero -->
-        <section class="hero-gradient text-white pt-24 pb-20 md:pt-32 md:pb-28 relative overflow-hidden">
-            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 25% 50%, #3b82f6 0%, transparent 50%), radial-gradient(circle at 75% 50%, #8b5cf6 0%, transparent 50%);"></div>
-            <div class="orb orb-1 w-72 h-72 bg-blue-500/20 -top-10 -left-10"></div>
-            <div class="orb orb-2 w-96 h-96 bg-amber-500/10 bottom-0 right-0"></div>
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div class="max-w-3xl mx-auto text-center">
-                    <div class="badge-pulse inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-1.5 mb-6 backdrop-blur-sm">
-                        <i class="fas fa-shield-alt text-blue-300 text-xs"></i>
-                        <span class="text-blue-200 text-sm font-medium">Tryggð greiðsla & ábyrgð</span>
-                    </div>
-                    <h1 class="font-display text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-[1.1]">
-                        Finndu réttu <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">fagmanninn</span><br class="hidden sm:block"> fyrir verkið
-                    </h1>
-                    <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
-                        Leitarðu að rafvirkja, pípara eða smið? Verktorg.is tengir þig við staðfesta fagmenn — öruggt, einfalt og hratt.
-                    </p>
-
-                    <!-- Search -->
-                    <div class="max-w-2xl mx-auto mb-8">
-                        <div class="flex gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-1.5">
-                            <div class="flex-1 relative">
-                                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                <input type="text" x-model="searchQuery" @keydown.enter="search()"
-                                    placeholder="Leita að rafvirkja, pípara, smið..." class="w-full bg-transparent text-white placeholder-slate-400 pl-11 pr-4 py-3.5 rounded-xl focus:outline-none text-sm">
-                            </div>
-                            <button @click="search()" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 rounded-xl transition flex items-center gap-2 text-sm">
-                                <i class="fas fa-arrow-right"></i>
-                                <span class="hidden sm:inline">Leita</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Categories -->
-                    <template x-if="!loading && categories.length">
-                        <div class="mt-8">
-                            <p class="text-slate-400 text-sm mb-4">Vinsælir flokkar:</p>
-                            <div class="category-grid">
-                                <template x-for="cat in categories.slice(0, 8)" :key="cat.id">
-                                    <button @click="browseCategory(cat)" class="cat-chip flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-3 transition text-sm">
-                                        <span class="cat-icon w-5 h-5 text-blue-400 shrink-0" x-html="categoryIcon(cat.id)"></span>
-                                        <span x-text="cat.label"></span>
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </section>
-
-        <!-- How it works -->
-        <section class="py-20 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <span class="badge bg-blue-100 text-blue-700 mb-4">SVONA VIRKAR ÞAÐ</span>
-                    <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">Þrjú einföld skref</h2>
-                    <p class="text-slate-600 max-w-xl mx-auto">Frá beiðni til útskilaðs verks — allt á einum stað.</p>
-                </div>
-                <div class="grid md:grid-cols-3 gap-8">
-                    <div class="text-center p-8 card-hover rounded-2xl bg-slate-50 border border-slate-100">
-                        <div class="step-ring w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-black">1</div>
-                        <h3 class="font-bold text-lg mb-2">Lýstu verkefni</h3>
-                        <p class="text-slate-600 text-sm leading-relaxed">Segðu okkur hvað þarf að gera, hvar og hvenær. Það tekur 2 mínútur og er ókeypis.</p>
-                    </div>
-                    <div class="text-center p-8 card-hover rounded-2xl bg-slate-50 border border-slate-100">
-                        <div class="step-ring w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-black">2</div>
-                        <h3 class="font-bold text-lg mb-2">Fáðu tilboð</h3>
-                        <p class="text-slate-600 text-sm leading-relaxed">Staðfestir fagmenn í þínu nágrenni senda þér tilboð með verði og tímamati.</p>
-                    </div>
-                    <div class="text-center p-8 card-hover rounded-2xl bg-slate-50 border border-slate-100">
-                        <div class="step-ring w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl font-black">3</div>
-                        <h3 class="font-bold text-lg mb-2">Veldu og borgaðu</h3>
-                        <p class="text-slate-600 text-sm leading-relaxed">Berðu saman, veldu þann sem hentar og greiddu örugglega í gegnum Verktorg.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Newest jobs -->
-        <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-end mb-12">
+<!-- ==================================================================
+     AUTH MODAL
+     ================================================================== -->
+<template x-if="showAuth">
+<div class="modal-overlay" @click.self="showAuth = false">
+    <div class="modal">
+        <div class="flex-between" style="margin-bottom:24px">
+            <h3 x-text="authMode==='login'?'Skrá inn':'Nýskráning'"></h3>
+            <button style="font-size:20px;background:none;color:var(--vt-text-muted)" @click="showAuth = false">&times;</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:24px;background:var(--vt-surface-muted);border-radius:8px;padding:4px">
+            <button @click="authMode='login'" :style="{background:authMode==='login'?'white':'transparent',flex:1,padding:'10px',borderRadius:'6px',fontWeight:'600',fontSize:'14px'}">Innskráning</button>
+            <button @click="authMode='register'" :style="{background:authMode==='register'?'white':'transparent',flex:1,padding:'10px',borderRadius:'6px',fontWeight:'600',fontSize:'14px'}">Nýskráning</button>
+        </div>
+        <form @submit.prevent="authMode==='login'?login():register()">
+            <div class="form-group"><label class="form-label">Netfang</label><input type="email" class="form-input" x-model="authForm.email" required></div>
+            <div class="form-group"><label class="form-label">Lykilorð</label><input type="password" class="form-input" x-model="authForm.password" required minlength="6"></div>
+            <template x-if="authMode==='register'">
                 <div>
-                    <span class="badge bg-emerald-100 text-emerald-700 mb-4">NÝJUSTU VERKEFNI</span>
-                    <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">Nýbirt verkefni</h2>
-                </div>
-                <a href="#" @click.prevent="$store.app.view = 'jobs'" class="text-blue-600 hover:text-blue-700 font-semibold text-sm hidden sm:inline">Sjá öll <i class="fas fa-arrow-right ml-1"></i></a>
-            </div>
-
-            <template x-if="loading">
-                <div class="grid md:grid-cols-3 gap-6">
-                    <template x-for="i in 3">
-                        <div class="rounded-2xl overflow-hidden">
-                            <div class="skeleton h-48 mb-4"></div>
-                            <div class="skeleton h-4 w-3/4 mb-2"></div>
-                            <div class="skeleton h-4 w-1/2"></div>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-            <template x-if="!loading && featuredJobs.length">
-                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <template x-for="job in featuredJobs" :key="job.id">
-                        <div class="bg-white rounded-2xl border border-slate-100 p-6 card-hover cursor-pointer"
-                             @click="viewJob(job)">
-                            <div class="flex justify-between items-start mb-4">
-                                <span class="badge bg-blue-50 text-blue-700 text-[10px]" x-text="categoryLabel(job.category)"></span>
-                                <span class="text-slate-400 text-xs" x-text="timeAgo(job.created_at)"></span>
-                            </div>
-                            <h3 class="font-bold text-lg mb-2 text-slate-900" x-text="job.title"></h3>
-                            <p class="text-sm text-slate-600 mb-4 line-clamp-2" x-text="job.description?.substring(0, 100) + (job.description?.length > 100 ? '...' : '')"></p>
-                            <div class="flex items-center justify-between text-sm border-t border-slate-100 pt-4">
-                                <span class="text-slate-500"><i class="fas fa-map-marker-alt mr-1 text-slate-400"></i> <span x-text="job.location || 'Ísland'"></span></span>
-                                <span class="font-bold text-slate-900" x-text="formatBudget(job)"></span>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-            <div class="text-center mt-10 sm:hidden">
-                <a href="#" @click.prevent="$store.app.view = 'jobs'" class="text-blue-600 font-semibold text-sm">Sjá öll verkefni <i class="fas fa-arrow-right ml-1"></i></a>
-            </div>
-        </section>
-
-        <!-- Why Verktorg -->
-        <section class="py-20 bg-gradient-to-b from-white to-slate-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <span class="badge bg-purple-100 text-purple-700 mb-4">AF HVERJU VERKTORG?</span>
-                    <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4">Öruggara en að leita á Facebook</h2>
-                    <p class="text-slate-600 max-w-xl mx-auto">Við skiljum íslenskan verktakamarkað og hönnuðum Verktorg fyrir hann.</p>
-                </div>
-                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="icon-float w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 p-2.5" style="animation-delay: 0s">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
-                                <path d="M12 3l7 3v5c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/>
-                                <path class="ic-draw" stroke-dasharray="9" stroke-dashoffset="9" d="M8.5 12l2.5 2.5 4.5-5"/>
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-sm mb-2">Staðfestir fagmenn</h3>
-                        <p class="text-slate-600 text-xs leading-relaxed">Allir fagmenn eru með staðfest réttindi og leyfisbréf.</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="icon-float w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4 p-2.5" style="animation-delay: 0.3s">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
-                                <rect x="5" y="11" width="14" height="9" rx="2"/>
-                                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-                                <circle class="ic-pulse" cx="12" cy="15.5" r="1.4" fill="currentColor" stroke="none"/>
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-sm mb-2">Örugg greiðsla</h3>
-                        <p class="text-slate-600 text-xs leading-relaxed">Greiðslur vistaðar þar til verki er skilað að fullu.</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="icon-float w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-4 p-2.5" style="animation-delay: 0.6s">
-                            <svg viewBox="0 0 24 24" class="w-full h-full">
-                                <path class="ic-pulse" fill="currentColor" d="M12 2l2.6 5.8 6.2.7-4.6 4.3 1.2 6.2L12 16.8 6.6 19l1.2-6.2L3.2 8.5l6.2-.7z"/>
-                                <path class="ic-pulse" style="animation-delay:.6s" fill="currentColor" d="M19.5 1.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z"/>
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-sm mb-2">Einkunnakerfi</h3>
-                        <p class="text-slate-600 text-xs leading-relaxed">Raunverulegir notendur gefa einkunnir — engar falsaðar umsagnir.</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-slate-100 card-hover text-center">
-                        <div class="icon-float w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4 p-2.5" style="animation-delay: 0.9s">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
-                                <rect x="3" y="5" width="18" height="16" rx="2"/>
-                                <path d="M3 9h18M8 3v4M16 3v4"/>
-                                <circle class="ic-pulse" cx="15.5" cy="14.5" r="1.5" fill="currentColor" stroke="none"/>
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-sm mb-2">Dagatal & framboð</h3>
-                        <p class="text-slate-600 text-xs leading-relaxed">Sjáðu hvenær fagmaður er laus og bókaðu beint.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Top craftsmen -->
-        <template x-if="!loading && topCraftsmen.length">
-            <section class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-12">
-                    <span class="badge bg-amber-100 text-amber-700 mb-4">TENGTU VIÐ FAGMENN</span>
-                    <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">Helstu fagmenn á Verktorg</h2>
-                </div>
-                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <template x-for="craftsman in topCraftsmen.slice(0, 4)" :key="craftsman.user_id">
-                        <div class="bg-white rounded-2xl border border-slate-100 p-6 card-hover text-center">
-                            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-xl font-bold">
-                                <span x-text="craftsman.user?.full_name?.charAt(0) || '?'"></span>
-                            </div>
-                            <h3 class="font-bold text-slate-900" x-text="craftsman.user?.full_name"></h3>
-                            <p class="text-sm text-blue-600 font-medium mt-1" x-text="categoryLabel(craftsman.trade_category)"></p>
-                            <p class="text-slate-500 text-sm mt-1"><i class="fas fa-map-marker-alt mr-1"></i><span x-text="craftsman.location || 'Ísland'"></span></p>
-                            <template x-if="craftsman.hourly_rate">
-                                <p class="text-slate-900 font-bold mt-3"><span x-text="craftsman.hourly_rate.toLocaleString()"></span> kr./klst</p>
-                            </template>
-                        </div>
-                    </template>
-                </div>
-            </section>
-        </template>
-
-        <!-- CTA -->
-        <section class="py-20 hero-gradient text-white relative overflow-hidden">
-            <div class="orb orb-1 w-80 h-80 bg-blue-500/15 -top-20 right-1/4"></div>
-            <div class="max-w-3xl mx-auto text-center px-4 relative z-10">
-                <h2 class="font-display text-3xl sm:text-4xl font-extrabold mb-6">Ertu fagmaður?</h2>
-                <p class="text-lg text-slate-300 mb-8">Búðu til prófíl, stilltu framboð og fáðu verkefni sem passa þér. Ekkert áskriftargjald — borgaðu bara þegar þu vinnur.</p>
-                <button @click="$store.app.view = 'login'; $store.app.__registerMode = true; $store.app.__registerRole = 'craftsman'" class="bg-amber-500 text-slate-900 font-bold px-8 py-4 rounded-xl hover:bg-amber-400 transition shadow-2xl shadow-amber-500/20 text-lg">
-                    <i class="fas fa-briefcase mr-2"></i> Búa til fagmannsprófíl
-                </button>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="bg-slate-900 text-slate-400 py-12">
-            <div class="max-w-7xl mx-auto px-4 text-center text-sm">
-                <div class="flex items-center justify-center gap-2 mb-4">
-                    <svg viewBox="0 0 36 36" class="w-8 h-8" aria-hidden="true">
-                        <rect width="36" height="36" rx="10" fill="url(#vtGradFooter)"/>
-                        <path d="M11 17 L17 25 L25 11" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                        <circle cx="25" cy="11" r="2" fill="#f59e0b"/>
-                        <defs>
-                            <linearGradient id="vtGradFooter" x1="0" y1="0" x2="36" y2="36">
-                                <stop stop-color="#3b82f6"/><stop offset="1" stop-color="#1e3a8a"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                    <span class="font-display font-extrabold text-white text-lg">Verktorg<span class="text-blue-500">.is</span></span>
-                </div>
-                <p>Öruggur miðill fyrir íslenska fagmenn og þá sem þurfa á þeim að halda.</p>
-                <p class="mt-2 text-xs">&copy; 2026 Verktorg.is — Allur réttur áskilinn.</p>
-            </div>
-        </footer>
-    </main>
-</template>
-
-<!-- PAGE: JOBS LIST -->
-<template x-if="$store.app.view === 'jobs'">
-    <main class="pt-20 pb-20 md:pb-8 animate-fade-in" x-data="jobsList()">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Filters bar -->
-            <div class="flex flex-col sm:flex-row gap-3 mb-8 items-start sm:items-end">
-                <div class="flex-1 w-full">
-                    <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900">Verkefni</h1>
-                    <p class="text-slate-500 text-sm mt-1" x-text="total + ' verkefni i boði'"></p>
-                </div>
-                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                    <select x-model="filters.category" @change="page=1; load()" class="input-field text-sm py-2.5 w-auto min-w-[130px]">
-                        <option value="">Allir flokkar</option>
-                        <option value="rafvirkjun">Rafvirkjun</option>
-                        <option value="pipulagnir">Pípulagnir</option>
-                        <option value="byggingarvinna">Byggingarvinna</option>
-                        <option value="malun">Málun</option>
-                        <option value="gardyrkja">Garðyrkja</option>
-                        <option value="hreinsun">Hreinsun</option>
-                        <option value="husgagnasmidi">Húsgagnasmíði</option>
-                        <option value="annad">Annað</option>
-                    </select>
-                    <select x-model="filters.sort" @change="page=1; load()" class="input-field text-sm py-2.5 w-auto min-w-[120px]">
-                        <option value="newest">Nýjast</option>
-                        <option value="budget_desc">Hæsta verð</option>
-                        <option value="budget_asc">Lægsta verð</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Loading -->
-            <template x-if="loading">
-                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <template x-for="i in 6">
-                        <div class="rounded-2xl p-6"><div class="skeleton h-4 w-20 mb-3"></div><div class="skeleton h-5 w-3/4 mb-2"></div><div class="skeleton h-4 w-full mb-4"></div><div class="skeleton h-4 w-1/2"></div></div>
-                    </template>
-                </div>
-            </template>
-
-            <!-- Empty -->
-            <template x-if="!loading && jobs.length === 0">
-                <div class="text-center py-20">
-                    <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-search text-slate-300 text-3xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-600">Engin verkefni fundust</h3>
-                    <p class="text-slate-500 mt-2">Reyndu að breyta leitarskilyrðum.</p>
-                </div>
-            </template>
-
-            <!-- Grid -->
-            <template x-if="!loading && jobs.length">
-                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <template x-for="job in jobs" :key="job.id">
-                        <div class="bg-white rounded-2xl border border-slate-100 p-6 card-hover cursor-pointer" @click="viewJob(job)">
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="badge bg-blue-50 text-blue-700 text-[10px]" x-text="categoryLabel(job.category)"></span>
-                                <span class="text-slate-400 text-xs" x-text="timeAgo(job.created_at)"></span>
-                            </div>
-                            <h3 class="font-bold text-lg mb-2 text-slate-900" x-text="job.title"></h3>
-                            <p class="text-sm text-slate-600 mb-4" x-text="job.description?.substring(0, 100) + (job.description?.length > 100 ? '...' : '')"></p>
-                            <div class="flex items-center justify-between text-sm border-t border-slate-100 pt-4">
-                                <span class="text-slate-500"><i class="fas fa-map-marker-alt mr-1"></i><span x-text="job.location || 'Ísland'"></span></span>
-                                <span class="font-bold text-slate-900" x-text="formatBudget(job)"></span>
-                            </div>
-                            <template x-if="job.bid_count !== undefined">
-                                <div class="mt-2 text-xs text-slate-400"><i class="fas fa-file-invoice mr-1"></i><span x-text="job.bid_count + ' tilboð'"></span></div>
-                            </template>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-            <!-- Pagination -->
-            <template x-if="totalPages > 1">
-                <div class="flex justify-center items-center gap-4 mt-12">
-                    <button @click="prevPage()" :disabled="page === 1" class="px-5 py-2.5 rounded-xl border border-slate-200 font-medium text-sm hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed">
-                        <i class="fas fa-chevron-left mr-1"></i> Fyrri
-                    </button>
-                    <span class="text-sm text-slate-500 font-medium" x-text="'Síða ' + page + ' af ' + totalPages"></span>
-                    <button @click="nextPage()" :disabled="page === totalPages" class="px-5 py-2.5 rounded-xl border border-slate-200 font-medium text-sm hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed">
-                        Næsta <i class="fas fa-chevron-right ml-1"></i>
-                    </button>
-                </div>
-            </template>
-        </div>
-    </main>
-</template>
-
-<!-- PAGE: CRAFTSMEN DIRECTORY -->
-<template x-if="$store.app.view === 'craftsmen'">
-    <main class="pt-20 pb-20 md:pb-8 animate-fade-in" x-data="craftsmanList()">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Filters bar -->
-            <div class="flex flex-col sm:flex-row gap-3 mb-8 items-start sm:items-end">
-                <div class="flex-1 w-full">
-                    <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900">Fagmenn</h1>
-                    <p class="text-slate-500 text-sm mt-1" x-text="total + ' fagmenn skráðir'"></p>
-                </div>
-                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                    <select x-model="filters.category" @change="page=1; load()" class="input-field text-sm py-2.5 w-auto min-w-[150px]">
-                        <option value="">Allir flokkar</option>
-                        <option value="rafvirkjun">Rafvirkjun</option>
-                        <option value="pipulagnir">Pípulagnir</option>
-                        <option value="byggingarvinna">Byggingarvinna</option>
-                        <option value="malun">Málun</option>
-                        <option value="gardyrkja">Garðyrkja</option>
-                        <option value="hreinsun">Hreinsun</option>
-                        <option value="husgagnasmidi">Húsgagnasmíði</option>
-                        <option value="smidi">Smíði</option>
-                        <option value="lagningar">Lagningar</option>
-                        <option value="lagnir">Lagnir</option>
-                        <option value="rafeindaverk">Rafeindaverk</option>
-                        <option value="hjolun">Hjólun</option>
-                        <option value="annad">Annað</option>
-                    </select>
-                    <div class="relative">
-                        <i class="fas fa-map-marker-alt absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                        <input type="text" x-model="filters.location" @keydown.enter="page=1; load()" @blur="page=1; load()"
-                            placeholder="Staðsetning" class="input-field text-sm py-2.5 pl-9 w-auto min-w-[150px]">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Loading -->
-            <template x-if="loading">
-                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <template x-for="i in 8">
-                        <div class="rounded-2xl p-6 bg-white border border-slate-100">
-                            <div class="skeleton w-14 h-14 rounded-full mb-4"></div>
-                            <div class="skeleton h-4 w-3/4 mb-2"></div>
-                            <div class="skeleton h-3 w-1/2 mb-3"></div>
-                            <div class="skeleton h-3 w-full"></div>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-            <!-- Empty -->
-            <template x-if="!loading && craftsmen.length === 0">
-                <div class="text-center py-20">
-                    <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-user-hard-hat text-slate-300 text-3xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-600">Engir fagmenn fundust</h3>
-                    <p class="text-slate-500 mt-2">Reyndu að breyta leitarskilyrðum.</p>
-                </div>
-            </template>
-
-            <!-- Grid -->
-            <template x-if="!loading && craftsmen.length">
-                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <template x-for="craftsman in craftsmen" :key="craftsman.user_id">
-                        <div class="bg-white rounded-2xl border border-slate-100 p-6 card-hover text-center">
-                            <div class="relative w-16 h-16 mx-auto mb-4">
-                                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
-                                    <span x-text="craftsman.user?.full_name?.charAt(0) || '?'"></span>
-                                </div>
-                                <template x-if="craftsman.is_verified">
-                                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center" title="Staðfestur fagmaður">
-                                        <i class="fas fa-check text-white text-[10px]"></i>
-                                    </div>
-                                </template>
-                            </div>
-                            <h3 class="font-bold text-slate-900" x-text="craftsman.user?.full_name"></h3>
-                            <p class="text-sm text-blue-600 font-medium mt-1" x-text="categoryLabel(craftsman.trade_category)"></p>
-                            <p class="text-slate-500 text-sm mt-1"><i class="fas fa-map-marker-alt mr-1"></i><span x-text="craftsman.location || 'Ísland'"></span></p>
-                            <template x-if="craftsman.years_experience != null">
-                                <p class="text-slate-400 text-xs mt-1"><span x-text="craftsman.years_experience"></span> ára reynsla</p>
-                            </template>
-                            <template x-if="craftsman.description">
-                                <p class="text-slate-600 text-xs leading-relaxed mt-3 line-clamp-2" x-text="craftsman.description"></p>
-                            </template>
-                            <template x-if="craftsman.hourly_rate != null">
-                                <p class="text-slate-900 font-bold mt-3 pt-3 border-t border-slate-100"><span x-text="craftsman.hourly_rate.toLocaleString()"></span> kr./klst</p>
-                            </template>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-            <!-- Pagination -->
-            <template x-if="totalPages > 1">
-                <div class="flex justify-center items-center gap-4 mt-12">
-                    <button @click="prevPage()" :disabled="page === 1" class="px-5 py-2.5 rounded-xl border border-slate-200 font-medium text-sm hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed">
-                        <i class="fas fa-chevron-left mr-1"></i> Fyrri
-                    </button>
-                    <span class="text-sm text-slate-500 font-medium" x-text="'Síða ' + page + ' af ' + totalPages"></span>
-                    <button @click="nextPage()" :disabled="page === totalPages" class="px-5 py-2.5 rounded-xl border border-slate-200 font-medium text-sm hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed">
-                        Næsta <i class="fas fa-chevron-right ml-1"></i>
-                    </button>
-                </div>
-            </template>
-        </div>
-    </main>
-</template>
-
-<!-- PAGE: JOB DETAIL -->
-<template x-if="$store.app.view === 'job-detail'">
-    <main class="pt-20 pb-20 animate-fade-in" x-data="jobDetail()">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <button @click="back()" class="flex items-center gap-2 text-slate-500 hover:text-slate-700 text-sm font-medium mb-6 transition">
-                <i class="fas fa-arrow-left"></i> Til baka í verkefnalista
-            </button>
-
-            <template x-if="!job">
-                <div class="text-center py-20"><p class="text-slate-500">Hleð...</p></div>
-            </template>
-
-            <template x-if="job">
-                <div class="grid lg:grid-cols-3 gap-8">
-                    <!-- Main -->
-                    <div class="lg:col-span-2 space-y-6">
-                        <div class="bg-white rounded-2xl border border-slate-100 p-6 sm:p-8">
-                            <div class="flex flex-wrap items-start gap-3 mb-4">
-                                <span class="badge bg-blue-50 text-blue-700" x-text="categoryLabel(job.category)"></span>
-                                <span class="badge" :class="job.status === 'open' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-50 text-slate-600'" x-text="job.status === 'open' ? 'Opið' : job.status === 'in_progress' ? 'Í vinnslu' : 'Lokið'"></span>
-                            </div>
-                            <h1 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 mb-4" x-text="job.title"></h1>
-                            <p class="text-slate-600 leading-relaxed whitespace-pre-line" x-text="job.description"></p>
-                        </div>
-
-                        <!-- Bids -->
-                        <div class="bg-white rounded-2xl border border-slate-100 p-6 sm:p-8">
-                            <h2 class="font-bold text-lg mb-4">Tilboð (<span x-text="bids.length"></span>)</h2>
-                            <template x-if="bids.length === 0">
-                                <div class="text-center py-8">
-                                    <i class="fas fa-file-invoice text-slate-200 text-3xl mb-3"></i>
-                                    <p class="text-slate-500 text-sm">Engin tilboð ennþá. Vertu fyrst/ur!</p>
-                                </div>
-                            </template>
-                            <template x-for="bid in bids" :key="bid.id">
-                                <div class="border border-slate-100 rounded-xl p-4 mb-3">
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <p class="font-bold text-lg text-slate-900"><span x-text="bid.amount.toLocaleString()"></span> kr.</p>
-                                            <template x-if="bid.estimated_hours">
-                                                <p class="text-sm text-slate-500">Áætlaður tími: <span x-text="bid.estimated_hours"></span> klst</p>
-                                            </template>
-                                            <p class="text-sm text-slate-600 mt-1" x-text="bid.message"></p>
-                                        </div>
-                                        <div>
-                                            <span class="badge" :class="bid.status === 'pending' ? 'bg-amber-50 text-amber-700' : bid.status === 'accepted' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'" x-text="bid.status === 'pending' ? 'Bíður' : bid.status === 'accepted' ? 'Samþykkt' : 'Hafnað'"></span>
-                                            <template x-if="$store.app.user?.id === job.customer_id && bid.status === 'pending'">
-                                                <button @click="acceptBid(bid.id)" class="block mt-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium"><i class="fas fa-check mr-1"></i>Samþykkja</button>
-                                            </template>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-
-                    <!-- Sidebar -->
-                    <div class="space-y-6">
-                        <div class="bg-white rounded-2xl border border-slate-100 p-6">
-                            <h3 class="font-bold text-sm uppercase tracking-wide text-slate-500 mb-4">Upplýsingar</h3>
-                            <div class="space-y-3 text-sm">
-                                <div class="flex justify-between">
-                                    <span class="text-slate-500">Verðbil</span>
-                                    <span class="font-semibold" x-text="formatBudget(job)"></span>
-                                </div>
-                                <template x-if="job.location">
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-500">Staðsetning</span>
-                                        <span class="font-semibold" x-text="job.location"></span>
-                                    </div>
-                                </template>
-                                <template x-if="job.preferred_date">
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-500">Óskaður tími</span>
-                                        <span class="font-semibold" x-text="new Date(job.preferred_date + 'T12:00:00').toLocaleDateString('is-IS')"></span>
-                                    </div>
-                                </template>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-500">Staða</span>
-                                    <span class="font-semibold" x-text="job.status === 'open' ? 'Opið' : job.status === 'in_progress' ? 'Í vinnslu' : 'Lokið'"></span>
-                                </div>
-                                <template x-if="job.bid_count !== undefined">
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-500">Tilboð</span>
-                                        <span class="font-semibold" x-text="job.bid_count"></span>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-
-                        <!-- Bid form -->
-                        <template x-if="job.status === 'open' && $store.app.user?.role === 'craftsman' && !bidSubmitted">
-                            <div class="bg-white rounded-2xl border border-slate-100 p-6">
-                                <h3 class="font-bold text-sm uppercase tracking-wide text-slate-500 mb-4">Senda tilboð</h3>
-                                <div class="space-y-3">
-                                    <div>
-                                        <label class="text-xs font-medium text-slate-500 mb-1 block">Upphæð (ISK)</label>
-                                        <input type="number" x-model="myBid.amount" placeholder="50.000" class="input-field text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs font-medium text-slate-500 mb-1 block">Áætlaðir tímar</label>
-                                        <input type="number" x-model="myBid.estimated_hours" placeholder="4" class="input-field text-sm" step="0.5">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs font-medium text-slate-500 mb-1 block">Skilaboð</label>
-                                        <textarea x-model="myBid.message" placeholder="Segðu viðskiptavininum aðeins frá þér..." class="input-field text-sm" rows="3"></textarea>
-                                    </div>
-                                    <button @click="submitBid()" class="btn-primary w-full text-center text-sm">Senda tilboð</button>
-                                </div>
-                            </div>
-                        </template>
-
-                        <template x-if="bidSubmitted">
-                            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center">
-                                <i class="fas fa-check-circle text-emerald-500 text-3xl mb-3"></i>
-                                <p class="font-bold text-emerald-800">Tilboð sent!</p>
-                                <p class="text-sm text-emerald-600 mt-1">Viðskiptavinurinn fær tilkynningu.</p>
-                            </div>
-                        </template>
-
-                        <!-- Owner: mark complete -->
-                        <template x-if="$store.app.user?.id === job.customer_id && job.status === 'in_progress'">
-                            <button @click="markComplete()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl transition text-sm">
-                                <i class="fas fa-check mr-2"></i> Merkja sem lokið
-                            </button>
-                        </template>
-
-                        <!-- Owner: delete -->
-                        <template x-if="$store.app.user?.id === job.customer_id && job.status === 'open'">
-                            <button @click="deleteJob(job.id)" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-medium py-3 rounded-xl transition text-sm border border-red-200">
-                                <i class="fas fa-trash mr-2"></i> Eyða verkefni
-                            </button>
-                        </template>
-                    </div>
-                </div>
-            </template>
-        </div>
-    </main>
-</template>
-
-<!-- PAGE: POST JOB -->
-<template x-if="$store.app.view === 'post-job'">
-    <main class="pt-20 pb-20 animate-fade-in" x-data="postJob()">
-        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white rounded-2xl border border-slate-100 p-6 sm:p-8 shadow-sm">
-                <div class="flex items-center gap-3 mb-8">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-plus-circle text-xl"></i></div>
-                    <div>
-                        <h1 class="font-display text-2xl font-extrabold text-slate-900">Lýsa verkefni</h1>
-                        <p class="text-slate-500 text-sm">Ókeypis. Tekur 2 mínútur.</p>
-                    </div>
-                </div>
-
-                <form @submit.prevent="submit()" class="space-y-5">
-                    <div>
-                        <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Titill <span class="text-red-500">*</span></label>
-                        <input type="text" x-model="form.title" placeholder="T.d. Tenging á ljósum á stigagangi" class="input-field" required minlength="5">
-                    </div>
-
-                    <div>
-                        <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Flokkur <span class="text-red-500">*</span></label>
-                        <select x-model="form.category" class="input-field">
-                            <option value="rafvirkjun">Rafvirkjun</option>
-                            <option value="pipulagnir">Pípulagnir</option>
-                            <option value="byggingarvinna">Byggingarvinna</option>
-                            <option value="malun">Málun</option>
-                            <option value="gardyrkja">Garðyrkja</option>
-                            <option value="hreinsun">Hreinsun</option>
-                            <option value="husgagnasmidi">Húsgagnasmíði</option>
-                            <option value="smidi">Smíði</option>
-                            <option value="lagnir">Lagnir</option>
-                            <option value="annad">Annað</option>
+                    <div class="form-group"><label class="form-label">Fullt nafn</label><input type="text" class="form-input" x-model="authForm.full_name" required></div>
+                    <div class="form-group"><label class="form-label">Símanúmer</label><input type="text" class="form-input" x-model="authForm.phone"></div>
+                    <div class="form-group"><label class="form-label">Hlutverk</label>
+                        <select class="form-select" x-model="authForm.role">
+                            <option value="customer">Viðskiptavinur</option>
+                            <option value="craftsman">Fagmaður</option>
                         </select>
                     </div>
-
-                    <div>
-                        <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Lýsing <span class="text-red-500">*</span></label>
-                        <textarea x-model="form.description" rows="5" class="input-field" placeholder="Lýstu verkefninu í smáatriðum: hvað á að gera, hvar, hvaða efni þarf, osfrv..." required minlength="10"></textarea>
-                    </div>
-
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Staðsetning</label>
-                            <input type="text" x-model="form.location" placeholder="Reykjavík" class="input-field">
-                        </div>
-                        <div>
-                            <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Óskaður dagur</label>
-                            <input type="date" x-model="form.preferred_date" class="input-field">
-                        </div>
-                    </div>
-
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Frá verði (ISK)</label>
-                            <input type="number" x-model="form.budget_min" placeholder="30.000" class="input-field" min="0">
-                        </div>
-                        <div>
-                            <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Til verðs (ISK)</label>
-                            <input type="number" x-model="form.budget_max" placeholder="50.000" class="input-field" min="0">
-                        </div>
-                    </div>
-
-                    <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" x-model="form.is_fixed_price" class="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm text-slate-700">Fast verð (ekki verðbil)</span>
-                    </label>
-
-                    <button type="submit" :disabled="submitting" class="btn-primary w-full text-center flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25">
-                        <i :class="submitting ? 'fas fa-spinner fa-spin' : 'fas fa-paper-plane'"></i>
-                        <span x-text="submitting ? 'Sendi...' : 'Birta verkefni'"></span>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </main>
+                </div>
+            </template>
+            <button type="submit" class="btn btn-primary btn-full" :disabled="authLoading" x-text="authLoading?'Vinnur...':(authMode==='login'?'Skrá inn':'Stofna aðgang')"></button>
+        </form>
+    </div>
+</div>
 </template>
 
-<!-- PAGE: LOGIN / REGISTER -->
-<template x-if="$store.app.view === 'login'">
-    <main class="pt-20 pb-20 animate-fade-in min-h-screen flex items-center" x-data="authForm()">
-        <div class="max-w-md mx-auto px-4 w-full">
-            <div class="bg-white rounded-2xl border border-slate-100 p-8 shadow-sm">
-                <div class="text-center mb-8">
-                    <svg viewBox="0 0 36 36" class="w-14 h-14 mx-auto mb-4" aria-hidden="true">
-                        <rect width="36" height="36" rx="10" fill="url(#vtGradLogin)"/>
-                        <path d="M11 17 L17 25 L25 11" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                        <circle cx="25" cy="11" r="2" fill="#f59e0b"/>
-                        <defs>
-                            <linearGradient id="vtGradLogin" x1="0" y1="0" x2="36" y2="36">
-                                <stop stop-color="#3b82f6"/><stop offset="1" stop-color="#1e3a8a"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                    <h1 class="font-display text-2xl font-extrabold text-slate-900" x-text="isLogin ? 'Innskráning' : 'Nýskráning'"></h1>
-                    <p class="text-slate-500 text-sm mt-1" x-text="isLogin ? 'Velkomin/n aftur!' : 'Búðu til aðgang að Verktorg.is'"></p>
-                </div>
-
-                <form @submit.prevent="submit()" class="space-y-4">
-                    <div x-show="!isLogin">
-                        <label class="text-sm font-semibold text-slate-700 mb-1 block">Fullt nafn</label>
-                        <input type="text" x-model="form.full_name" class="input-field text-sm" required>
-                    </div>
-
-                    <div>
-                        <label class="text-sm font-semibold text-slate-700 mb-1 block">Netfang</label>
-                        <input type="email" x-model="form.email" class="input-field text-sm" required>
-                    </div>
-
-                    <div x-show="!isLogin">
-                        <label class="text-sm font-semibold text-slate-700 mb-1 block">Sími</label>
-                        <input type="tel" x-model="form.phone" class="input-field text-sm" placeholder="+354 123 4567">
-                    </div>
-
-                    <div>
-                        <label class="text-sm font-semibold text-slate-700 mb-1 block">Lykilorð</label>
-                        <input type="password" x-model="form.password" class="input-field text-sm" required minlength="6">
-                    </div>
-
-                    <template x-if="!isLogin">
-                        <div>
-                            <label class="text-sm font-semibold text-slate-700 mb-1 block">Ég er...</label>
-                            <div class="grid grid-cols-2 gap-3">
-                                <label class="flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition"
-                                       :class="form.role === 'customer' ? 'border-blue-500 bg-blue-50' : 'border-slate-200'">
-                                    <input type="radio" value="customer" x-model="form.role" class="sr-only">
-                                    <i class="fas fa-user text-lg" :class="form.role === 'customer' ? 'text-blue-600' : 'text-slate-400'"></i>
-                                    <span class="font-medium text-sm" :class="form.role === 'customer' ? 'text-blue-700' : 'text-slate-600'">Viðskiptavinur</span>
-                                </label>
-                                <label class="flex items-center gap-3 p-3 border-2 rounded-xl cursor-pointer transition"
-                                       :class="form.role === 'craftsman' ? 'border-amber-500 bg-amber-50' : 'border-slate-200'">
-                                    <input type="radio" value="craftsman" x-model="form.role" class="sr-only">
-                                    <i class="fas fa-briefcase text-lg" :class="form.role === 'craftsman' ? 'text-amber-600' : 'text-slate-400'"></i>
-                                    <span class="font-medium text-sm" :class="form.role === 'craftsman' ? 'text-amber-700' : 'text-slate-600'">Fagmaður</span>
-                                </label>
-                            </div>
-                        </div>
-                    </template>
-
-                    <template x-if="error">
-                        <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3 flex items-center gap-2">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <span x-text="error"></span>
-                        </div>
-                    </template>
-
-                    <button type="submit" class="btn-primary w-full text-center">
-                        <span x-text="isLogin ? 'Innskrá' : 'Búa til aðgang'"></span>
-                    </button>
-                </form>
-
-                <div class="mt-6 text-center">
-                    <button @click="toggle()" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                        <span x-text="isLogin ? 'Ertu ekki með aðgang? Nýskráðu þig' : 'Þegar með aðgang? Innskráning'"></span>
-                    </button>
-                </div>
-            </div>
+<!-- ==================================================================
+     POST JOB MODAL
+     ================================================================== -->
+<template x-if="showPostJob">
+<div class="modal-overlay" @click.self="showPostJob = false">
+    <div class="modal" style="max-width:560px">
+        <div class="flex-between" style="margin-bottom:24px">
+            <h3>Leggja fram verkefni</h3>
+            <button style="font-size:20px;background:none;color:var(--vt-text-muted)" @click="showPostJob = false">&times;</button>
         </div>
-    </main>
+        <form @submit.prevent="postJob()">
+            <div class="form-group"><label class="form-label">Titill</label><input type="text" class="form-input" x-model="jobForm.title" required placeholder="t.d. Uppsetning á ofni"></div>
+            <div class="form-group"><label class="form-label">Lýsing</label><textarea class="form-input" x-model="jobForm.description" rows="3" placeholder="Lýstu verkefninu í stuttu máli..."></textarea></div>
+            <div class="form-group"><label class="form-label">Flokkur</label>
+                <select class="form-select" x-model="jobForm.category">
+                    <option value="">Veldu flokk</option>
+                    <template x-for="cat in categories" :key="cat.value">
+                        <option :value="cat.value" x-text="cat.label"></option>
+                    </template>
+                </select>
+            </div>
+            <div class="form-group"><label class="form-label">Staðsetning</label><input type="text" class="form-input" x-model="jobForm.location" placeholder="t.d. Reykjavík"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group"><label class="form-label">Lágmarksupphæð (ISK)</label><input type="number" class="form-input" x-model="jobForm.budget_min" placeholder="0"></div>
+                <div class="form-group"><label class="form-label">Hámarksupphæð (ISK)</label><input type="number" class="form-input" x-model="jobForm.budget_max" placeholder="0"></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" :disabled="jobPosting" x-text="jobPosting?'Sendi inn...':'Birta verkefni'"></button>
+        </form>
+    </div>
+</div>
 </template>
 
-<!-- PAGE: DASHBOARD -->
-<template x-if="$store.app.view === 'dashboard'">
-    <main class="pt-20 pb-24 md:pb-8 animate-fade-in" x-data="dashboard()">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                    <span x-text="$store.app.user?.full_name?.charAt(0) || '?'"></span>
-                </div>
-                <div>
-                    <h1 class="font-display text-2xl font-extrabold text-slate-900">Mín síða</h1>
-                    <p class="text-slate-500 text-sm" x-text="$store.app.user?.email"></p>
-                </div>
-            </div>
+<!-- ==================================================================
+     JOB DETAIL MODAL
+     ================================================================== -->
+<template x-if="jobDetail">
+<div class="modal-overlay" @click.self="jobDetail = null">
+    <div class="modal" style="max-width:640px">
+        <button style="font-size:20px;background:none;color:var(--vt-text-muted);float:right" @click="jobDetail = null">&times;</button>
+        <span class="job-category" x-text="categoryLabel(jobDetail.category)"></span>
+        <h3 x-text="jobDetail.title" style="margin:12px 0 8px"></h3>
+        <p x-text="jobDetail.description" style="color:var(--vt-text-muted);font-size:14px;line-height:1.6;margin-bottom:16px"></p>
+        <div class="job-meta" style="margin-bottom:16px">
+            <span><i class="fas fa-map-marker-alt"></i> <span x-text="jobDetail.location||'Ísland'"></span></span>
+            <span><i class="fas fa-calendar"></i> <span x-text="formatDate(jobDetail.created_at)"></span></span>
+        </div>
+        <div class="job-budget" style="margin-bottom:20px;font-size:22px" x-text="formatISK(jobDetail.budget_min)"></div>
 
-            <!-- Tabs -->
-            <div class="flex gap-1 mb-8 bg-slate-100 rounded-xl p-1 w-fit">
-                <button @click="activeTab = 'jobs'" class="px-5 py-2.5 rounded-lg text-sm font-medium transition" :class="activeTab === 'jobs' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'">Mín verkefni</button>
-                <template x-if="$store.app.user?.role === 'craftsman'">
-                    <button @click="activeTab = 'bids'" class="px-5 py-2.5 rounded-lg text-sm font-medium transition" :class="activeTab === 'bids' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'">Tilboð</button>
-                </template>
-                <template x-if="$store.app.user?.role === 'craftsman'">
-                    <button @click="activeTab = 'availability'" class="px-5 py-2.5 rounded-lg text-sm font-medium transition" :class="activeTab === 'availability' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'">Framboð</button>
-                </template>
-                <template x-if="$store.app.user?.role === 'craftsman'">
-                    <button @click="activeTab = 'profile'" class="px-5 py-2.5 rounded-lg text-sm font-medium transition" :class="activeTab === 'profile' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'">Prófíll</button>
+        <!-- Bids -->
+        <template x-if="jobDetail.bids && jobDetail.bids.length > 0">
+            <div style="border-top:1px solid var(--vt-border);padding-top:16px;margin-bottom:16px">
+                <h4 style="font-size:15px;font-weight:600;margin-bottom:12px">Tilboð (x-text="jobDetail.bids.length")</h4>
+                <template x-for="bid in jobDetail.bids" :key="bid.id">
+                    <div style="background:var(--vt-surface-muted);border-radius:8px;padding:14px;margin-bottom:8px">
+                        <div class="flex-between">
+                            <strong x-text="bid.craftsman_name"></strong>
+                            <strong style="color:var(--vt-blue)" x-text="formatISK(bid.amount)"></strong>
+                        </div>
+                        <p x-text="bid.message" style="font-size:13px;color:var(--vt-text-muted);margin-top:4px" x-show="bid.message"></p>
+                    </div>
                 </template>
             </div>
-
-            <!-- Tab: Jobs -->
-            <template x-if="activeTab === 'jobs'">
-                <div>
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="font-bold text-lg">Mín verkefni</h2>
-                        <button @click="$store.app.view = 'post-job'" class="btn-primary text-sm px-4 py-2.5"><i class="fas fa-plus mr-1.5"></i>Nýtt verkefni</button>
-                    </div>
-
-                    <template x-if="loading">
-                        <div class="space-y-3"><template x-for="i in 3"><div class="skeleton h-20 rounded-2xl"></div></template></div>
-                    </template>
-
-                    <template x-if="!loading && myJobs.length === 0">
-                        <div class="text-center py-16 bg-white rounded-2xl border border-slate-100">
-                            <i class="far fa-folder-open text-slate-200 text-5xl mb-4"></i>
-                            <p class="text-slate-500">Engin verkefni ennþá.</p>
-                            <button @click="$store.app.view = 'post-job'" class="text-blue-600 font-medium text-sm mt-2">Lýsa fyrsta verkefni</button>
-                        </div>
-                    </template>
-
-                    <template x-if="!loading && myJobs.length">
-                        <div class="space-y-3">
-                            <template x-for="job in myJobs" :key="job.id">
-                                <div class="bg-white rounded-2xl border border-slate-100 p-5 flex justify-between items-center">
-                                    <div class="flex-1">
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <span class="badge text-[10px]" :class="job.status === 'open' ? 'bg-emerald-50 text-emerald-700' : job.status === 'in_progress' ? 'bg-amber-50 text-amber-700' : 'bg-slate-50 text-slate-600'"
-                                                  x-text="job.status === 'open' ? 'Opið' : job.status === 'in_progress' ? 'Í vinnslu' : 'Lokið'"></span>
-                                            <span class="text-xs text-slate-400" x-text="new Date(job.created_at).toLocaleDateString('is-IS')"></span>
-                                        </div>
-                                        <h3 class="font-bold text-slate-900" x-text="job.title"></h3>
-                                        <p class="text-sm text-slate-500" x-text="job.bid_count !== undefined ? job.bid_count + ' tilboð' : ''"></p>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <template x-if="job.status === 'in_progress'">
-                                            <button @click="completeJob(job.id)" class="text-emerald-600 hover:bg-emerald-50 p-2 rounded-xl transition" title="Merki sem lokið"><i class="fas fa-check"></i></button>
-                                        </template>
-                                        <button @click="console.log(job); Alpine.store('app').__jobDetail = job; Alpine.store('app').view = 'job-detail'" class="text-blue-600 hover:bg-blue-50 p-2 rounded-xl transition" title="Skoða"><i class="fas fa-eye"></i></button>
-                                        <button @click="deleteJob(job.id)" class="text-red-400 hover:bg-red-50 p-2 rounded-xl transition" title="Eyða"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-            <!-- Tab: Bids (craftsman) -->
-            <template x-if="activeTab === 'bids'">
-                <div>
-                    <h2 class="font-bold text-lg mb-6">Tilboðin mín</h2>
-                    <template x-if="myBids.length === 0">
-                        <div class="text-center py-16 bg-white rounded-2xl border border-slate-100">
-                            <i class="far fa-file-invoice text-slate-200 text-5xl mb-4"></i>
-                            <p class="text-slate-500">Engin tilboð ennþá.</p>
-                            <button @click="$store.app.view = 'jobs'" class="text-blue-600 font-medium text-sm mt-2">Finna verkefni</button>
-                        </div>
-                    </template>
-                    <template x-if="myBids.length">
-                        <div class="space-y-3">
-                            <template x-for="bid in myBids" :key="bid.id">
-                                <div class="bg-white rounded-2xl border border-slate-100 p-5">
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <p class="font-bold text-lg"><span x-text="bid.amount.toLocaleString()"></span> kr.</p>
-                                            <p class="text-sm text-slate-500">Staða: <span class="badge" :class="bid.status === 'pending' ? 'bg-amber-50 text-amber-700' : bid.status === 'accepted' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'" x-text="bid.status === 'pending' ? 'Bíður' : bid.status === 'accepted' ? 'Samþykkt' : 'Hafnað'"></span></p>
-                                        </div>
-                                        <span class="text-xs text-slate-400" x-text="new Date(bid.created_at).toLocaleDateString('is-IS')"></span>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-            <!-- Tab: Availability -->
-            <template x-if="activeTab === 'availability'">
-                <div x-data="availabilityManager()">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="font-bold text-lg">Framboðstímar</h2>
-                        <button @click="addWeek()" class="text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium px-4 py-2 rounded-xl transition"><i class="fas fa-calendar-week mr-1.5"></i>Setja inn viku</button>
-                    </div>
-
-                    <div class="bg-white rounded-2xl border border-slate-100 p-6 mb-6">
-                        <h3 class="font-bold text-sm mb-4">Bæta við tíma</h3>
-                        <div class="grid sm:grid-cols-4 gap-3">
-                            <input type="date" x-model="newSlot.date" class="input-field text-sm sm:col-span-2">
-                            <input type="time" x-model="newSlot.start_time" class="input-field text-sm">
-                            <input type="time" x-model="newSlot.end_time" class="input-field text-sm">
-                        </div>
-                        <button @click="addSlot()" class="mt-3 bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition text-sm font-medium"><i class="fas fa-plus mr-1.5"></i>Bæta við</button>
-                    </div>
-
-                    <template x-if="loading">
-                        <div class="space-y-2"><template x-for="i in 3"><div class="skeleton h-12 rounded-xl"></div></template></div>
-                    </template>
-
-                    <template x-if="!loading && slots.length === 0">
-                        <div class="text-center py-12 bg-white rounded-2xl border border-slate-100">
-                            <i class="fas fa-calendar text-slate-200 text-4xl mb-3"></i>
-                            <p class="text-slate-500">Engir framboðstímar skráðir.</p>
-                        </div>
-                    </template>
-
-                    <template x-if="!loading && slots.length">
-                        <div class="bg-white rounded-2xl border border-slate-100 p-4">
-                            <template x-for="slot in slots" :key="slot.id">
-                                <div class="flex justify-between items-center py-3 border-b border-slate-50 last:border-0">
-                                    <div class="flex items-center gap-4">
-                                        <span class="text-sm font-medium text-slate-700 w-24" x-text="formatDate(slot.date)"></span>
-                                        <span class="text-sm text-slate-500"><span x-text="formatTime(slot.start_time)"></span> - <span x-text="formatTime(slot.end_time)"></span></span>
-                                        <span class="badge text-[10px]" :class="slot.is_booked ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'" x-text="slot.is_booked ? 'Bókað' : 'Laus'"></span>
-                                    </div>
-                                    <button @click="deleteSlot(slot.id)" class="text-red-400 hover:text-red-600 transition text-sm" x-show="!slot.is_booked"><i class="fas fa-times"></i></button>
-                                </div>
-                            </template>
-                        </div>
-                    </template>
-                </div>
-            </template>
-
-            <!-- Tab: Profile (craftsman setup) -->
-            <template x-if="activeTab === 'profile'">
-                <div x-data="craftsmanSetup()">
-                    <h2 class="font-bold text-lg mb-6">Fagmannsprófíll</h2>
-                    <div class="bg-white rounded-2xl border border-slate-100 p-6 sm:p-8">
-                        <form @submit.prevent="submit()" class="space-y-4">
-                            <div class="grid sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="text-sm font-semibold text-slate-700 mb-1 block">Flokkur</label>
-                                    <select x-model="form.trade_category" class="input-field text-sm">
-                                        <option value="rafvirkjun">Rafvirkjun</option>
-                                        <option value="pipulagnir">Pípulagnir</option>
-                                        <option value="byggingarvinna">Byggingarvinna</option>
-                                        <option value="malun">Málun</option>
-                                        <option value="gardyrkja">Garðyrkja</option>
-                                        <option value="hreinsun">Hreinsun</option>
-                                        <option value="husgagnasmidi">Húsgagnasmíði</option>
-                                        <option value="annad">Annað</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="text-sm font-semibold text-slate-700 mb-1 block">Leyfisnúmer</label>
-                                    <input type="text" x-model="form.license_number" class="input-field text-sm" placeholder="Vinnueftirlitið">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="text-sm font-semibold text-slate-700 mb-1 block">Lýsing</label>
-                                <textarea x-model="form.description" rows="4" class="input-field text-sm" placeholder="Segðu viðskiptavinum frá þér, þinni reynslu og því sem þú gerir."></textarea>
-                            </div>
-
-                            <div class="grid sm:grid-cols-3 gap-4">
-                                <div>
-                                    <label class="text-sm font-semibold text-slate-700 mb-1 block">Staðsetning</label>
-                                    <input type="text" x-model="form.location" class="input-field text-sm" placeholder="Reykjavík">
-                                </div>
-                                <div>
-                                    <label class="text-sm font-semibold text-slate-700 mb-1 block">Ár í starfi</label>
-                                    <input type="number" x-model="form.years_experience" class="input-field text-sm" min="0">
-                                </div>
-                                <div>
-                                    <label class="text-sm font-semibold text-slate-700 mb-1 block">Klst. taxti (ISK)</label>
-                                    <input type="number" x-model="form.hourly_rate" class="input-field text-sm" min="0" placeholder="10.000">
-                                </div>
-                            </div>
-
-                            <button type="submit" :disabled="submitting" class="btn-primary">
-                                <i :class="submitting ? 'fas fa-spinner fa-spin' : 'fas fa-save'" class="mr-2"></i>
-                                Vista prófíl
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </template>
-        </div>
-    </main>
+        </template>
+    </div>
+</div>
 </template>
 
-<!-- PAGE: CRAFTSMAN SETUP (standalone) -->
-<template x-if="$store.app.view === 'craftsman-setup'">
-    <main class="pt-20 pb-24 animate-fade-in" x-data="craftsmanSetup()">
-        <div class="max-w-2xl mx-auto px-4">
-            <div class="bg-white rounded-2xl border border-slate-100 p-6 sm:p-8 shadow-sm">
-                <div class="flex items-center gap-3 mb-8">
-                    <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center"><i class="fas fa-briefcase text-xl"></i></div>
-                    <div>
-                        <h1 class="font-display text-2xl font-extrabold text-slate-900">Fagmannsprófíll</h1>
-                        <p class="text-slate-500 text-sm">Stilla hvernig þú birtist viðskiptavinum.</p>
-                    </div>
-                </div>
 
-                <form @submit.prevent="submit()" class="space-y-4">
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-sm font-semibold text-slate-700 mb-1 block">Flokkur</label>
-                            <select x-model="form.trade_category" class="input-field text-sm">
-                                <option value="rafvirkjun">Rafvirkjun</option>
-                                <option value="pipulagnir">Pípulagnir</option>
-                                <option value="byggingarvinna">Byggingarvinna</option>
-                                <option value="malun">Málun</option>
-                                <option value="gardyrkja">Garðyrkja</option>
-                                <option value="hreinsun">Hreinsun</option>
-                                <option value="husgagnasmidi">Húsgagnasmíði</option>
-                                <option value="annad">Annað</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-sm font-semibold text-slate-700 mb-1 block">Leyfisnúmer</label>
-                            <input type="text" x-model="form.license_number" class="input-field text-sm">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-sm font-semibold text-slate-700 mb-1 block">Lýsing</label>
-                        <textarea x-model="form.description" rows="5" class="input-field text-sm" placeholder="Segðu viðskiptavinum frá þér."></textarea>
-                    </div>
-                    <div class="grid sm:grid-cols-3 gap-4">
-                        <div>
-                            <label class="text-sm font-semibold text-slate-700 mb-1 block">Staðsetning</label>
-                            <input type="text" x-model="form.location" class="input-field text-sm" placeholder="Reykjavík">
-                        </div>
-                        <div>
-                            <label class="text-sm font-semibold text-slate-700 mb-1 block">Ár í starfi</label>
-                            <input type="number" x-model="form.years_experience" class="input-field text-sm" min="0">
-                        </div>
-                        <div>
-                            <label class="text-sm font-semibold text-slate-700 mb-1 block">Klst. taxti</label>
-                            <input type="number" x-model="form.hourly_rate" class="input-field text-sm" min="0" placeholder="10.000">
-                        </div>
-                    </div>
-                    <div class="flex gap-3">
-                        <button type="submit" :disabled="submitting" class="btn-primary">
-                            <i :class="submitting ? 'fas fa-spinner fa-spin' : 'fas fa-save'" class="mr-2"></i>Vista
-                        </button>
-                        <button @click.prevent="$store.app.view = 'dashboard'" type="button" class="px-6 py-3 border border-slate-200 rounded-xl font-medium text-sm hover:bg-slate-50 transition">Til baka</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
-</template>
+<script>
+function verktorg() {
+    return {
+        // State
+        view: 'home',
+        user: null,
+        showAuth: false,
+        authMode: 'login',
+        authLoading: false,
+        authForm: { email: '', password: '', full_name: '', phone: '', role: 'customer' },
+        notification: null,
+        // Marketplace
+        jobs: [], craftsmen: [], categories: [],
+        filterSearch: '', filterCategory: '', filterSort: 'newest',
+        craftFilter: '', craftCategory: '',
+        page: 1, perPage: 12, totalPages: 1,
+        loading: { jobs: false, craftsmen: false },
+        jobDetail: null,
+        showPostJob: false, jobPosting: false,
+        jobForm: { title: '', description: '', category: '', location: '', budget_min: '', budget_max: '' },
+        // Stats
+        stats: { jobs: 0, craftsmen: 0, categories: 13 },
 
+        async init() {
+            await this.loadCategories();
+            await this.loadStats();
+            // Check existing token
+            const tok = localStorage.getItem('verktorg_token');
+            if (tok) {
+                try {
+                    this.user = await this.api('/api/auth/me');
+                } catch { localStorage.removeItem('verktorg_token'); }
+            }
+        },
+
+        async api(path, opts = {}) {
+            const token = localStorage.getItem('verktorg_token');
+            const headers = { 'Content-Type': 'application/json', ...opts.headers };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const res = await fetch(path, { ...opts, headers });
+            if (res.status === 401) { localStorage.removeItem('verktorg_token'); this.user = null; throw new Error('Unauthorized'); }
+            if (!res.ok) { const e = await res.json().catch(() => ({ detail: 'Villa' })); throw new Error(e.detail || 'Villa'); }
+            return res.json();
+        },
+
+        notify(msg, type = 'info') {
+            this.notification = { msg, type };
+            setTimeout(() => this.notification = null, 4000);
+        },
+
+        navigate(v) { this.view = v; if (v === 'marketplace') this.loadJobs(); if (v === 'craftsmen') this.loadCraftsmen(); window.scrollTo(0, 0); },
+
+        // Auth
+        async login() {
+            this.authLoading = true;
+            try {
+                const data = await this.api('/api/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email: this.authForm.email, password: this.authForm.password })
+                });
+                localStorage.setItem('verktorg_token', data.access_token);
+                this.user = await this.api('/api/auth/me');
+                this.showAuth = false;
+                this.notify('Innskráning tókst!', 'success');
+            } catch (e) { this.notify(e.message, 'error'); }
+            this.authLoading = false;
+        },
+
+        async register() {
+            this.authLoading = true;
+            try {
+                await this.api('/api/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify(this.authForm)
+                });
+                this.notify('Nýskráning tókst! Skráðu þig inn.', 'success');
+                this.authMode = 'login';
+            } catch (e) { this.notify(e.message, 'error'); }
+            this.authLoading = false;
+        },
+
+        logout() {
+            localStorage.removeItem('verktorg_token');
+            this.user = null;
+            this.navigate('home');
+            this.notify('Útskráð/ur', 'info');
+        },
+
+        // Stats
+        async loadStats() {
+            try {
+                const [jobs, craftsmen] = await Promise.all([
+                    this.api('/api/jobs?page=1&per_page=1').catch(() => ({ total: 0 })),
+                    this.api('/api/craftsmen?page=1&per_page=1').catch(() => ({ total: 0 }))
+                ]);
+                this.stats.jobs = jobs.total || 0;
+                this.stats.craftsmen = craftsmen.total || 0;
+            } catch {}
+        },
+
+        // Categories
+        async loadCategories() {
+            try { this.categories = await this.api('/api/categories'); }
+            catch { this.categories = []; }
+        },
+
+        categoryLabel(val) {
+            const c = this.categories.find(c => c.value === val);
+            return c ? c.label : val;
+        },
+
+        // Marketplace
+        async loadJobs() {
+            this.loading.jobs = true;
+            try {
+                const params = new URLSearchParams({ page: this.page, per_page: this.perPage, sort: this.filterSort });
+                if (this.filterSearch) params.set('search', this.filterSearch);
+                if (this.filterCategory) params.set('category', this.filterCategory);
+                const data = await this.api(`/api/jobs?${params}`);
+                this.jobs = data.items || [];
+                this.totalPages = Math.ceil((data.total || 0) / this.perPage);
+            } catch (e) { this.jobs = []; }
+            this.loading.jobs = false;
+        },
+
+        viewJob(job) { this.jobDetail = job; },
+
+        async postJob() {
+            this.jobPosting = true;
+            try {
+                const body = { ...this.jobForm };
+                if (body.budget_min) body.budget_min = parseInt(body.budget_min);
+                if (body.budget_max) body.budget_max = parseInt(body.budget_max);
+                await this.api('/api/jobs', { method: 'POST', body: JSON.stringify(body) });
+                this.showPostJob = false;
+                this.notify('Verkefni birt!', 'success');
+                this.jobForm = { title: '', description: '', category: '', location: '', budget_min: '', budget_max: '' };
+                await this.loadJobs();
+            } catch (e) { this.notify(e.message, 'error'); }
+            this.jobPosting = false;
+        },
+
+        // Countdown logic
+        countdown(job) {
+            if (!job.created_at) return { text: '', days: 999, urgent: false };
+            const created = new Date(job.created_at);
+            const deadline = new Date(created.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days
+            const now = new Date();
+            const diff = deadline - now;
+            const days = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+            const hours = Math.floor((diff % (86400000)) / 3600000);
+            const urgent = days < 2;
+            if (diff <= 0) return { text: 'Útrunnið', days, urgent: true };
+            if (days < 1) return { text: `${hours} klst eftir`, days, urgent: true };
+            return { text: `${days} dagar eftir`, days, urgent };
+        },
+
+        // Craftsmen
+        async loadCraftsmen() {
+            this.loading.craftsmen = true;
+            try {
+                const params = new URLSearchParams({ page: 1, per_page: 50 });
+                if (this.craftFilter) params.set('search', this.craftFilter);
+                if (this.craftCategory) params.set('category', this.craftCategory);
+                const data = await this.api(`/api/craftsmen?${params}`);
+                this.craftsmen = data.items || [];
+            } catch (e) { this.craftsmen = []; }
+            this.loading.craftsmen = false;
+        },
+
+        viewCraftsman(c) { this.notify(`${c.full_name} — ${this.categoryLabel(c.trade_category)}`, 'info'); },
+
+        // Helpers
+        formatDate(d) { if (!d) return ''; return new Date(d).toLocaleDateString('is-IS', { day: 'numeric', month: 'short' }); },
+        formatISK(n) { if (!n && n !== 0) return ''; return new Intl.NumberFormat('is-IS', { style: 'currency', currency: 'ISK', maximumFractionDigits: 0 }).format(n); },
+    };
+}
+</script>
 </body>
 </html>
