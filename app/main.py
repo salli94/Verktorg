@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 from .database import engine, Base
-from .routers import auth, jobs, craftsmen, availability, bids, reviews, categories, notifications
+from .routers import auth, jobs, craftsmen, availability, bids, reviews, categories, notifications, conversations
 
 app = FastAPI(title="Verktorg.is API", version="1.0.0", docs_url="/api/docs")
 
@@ -69,6 +69,7 @@ app.include_router(bids.router)
 app.include_router(reviews.router)
 app.include_router(categories.router)
 app.include_router(notifications.router)
+app.include_router(conversations.router)
 
 # Serve frontend static files
 frontend_dir = Path(__file__).resolve().parent.parent / "frontend"

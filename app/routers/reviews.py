@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..database import get_db
-from ..models import User, Job, Review, JobStatus, Bid
+from ..models import User, Job, Review, JobStatus, Bid, BidStatus
 from ..schemas import ReviewCreate, ReviewResponse
 from ..auth import get_current_user
 
@@ -23,15 +23,11 @@ async def create_review(
     if job.status != JobStatus.COMPLETED:
         raise HTTPException(status_code=400, detail="Can only review completed jobs")
 
-    # Find the accepted bid to determine reviewee
+    # Find the accepted bid to determine who can review whom.
     bid_result = await db.execute(
-        select(Bid).where(Bid.job_id == job_id)
+        select(Bid).where(Bid.job_id == job_id, Bid.status == BidStatus.ACCEPTED)
     )
-    accepted_bid = None
-    for b in bid_result.scalars().all():
-        if b.status == "accepted":
-            accepted_bid = b
-            break
+    accepted_bid = bid_result.scalar_one_or_none()
 
     if not accepted_bid:
         raise HTTPException(status_code=400, detail="No accepted bid found for this job")

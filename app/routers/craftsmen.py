@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from ..database import get_db
-from ..models import User, CraftsmanProfile, UserRole, Review
+from ..models import User, CraftsmanProfile, Review
 from ..schemas import (
     CraftsmanProfileCreate, CraftsmanProfileResponse, UserResponse, ReviewResponse, PaginatedResponse
 )
@@ -17,9 +17,6 @@ async def create_profile(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    if current_user.role != UserRole.CRAFTSMAN:
-        raise HTTPException(status_code=403, detail="Only craftsmen can create profiles")
-
     existing = await db.execute(
         select(CraftsmanProfile).where(CraftsmanProfile.user_id == current_user.id)
     )
@@ -130,8 +127,19 @@ async def list_craftsmen(
 
 @router.get("/{user_id}/reviews")
 async def get_craftsman_reviews(user_id: int, db: AsyncSession = Depends(get_db)):
+    profile_result = await db.execute(
+        select(CraftsmanProfile).where(CraftsmanProfile.user_id == user_id)
+    )
+    if profile_result.scalar_one_or_none() is None:
+        raise HTTPException(status_code=404, detail="Craftsman not found")
+
     result = await db.execute(
         select(Review).where(Review.reviewee_id == user_id).order_by(Review.created_at.desc())
     )
     reviews = result.scalars().all()
-    return [ReviewResponse.model_validate(r) for r in reviews]
+    items = []
+    for review in reviews:
+        reviewer_result = await db.execute(select(User).where(User.id == review.reviewer_id))
+        review.reviewer = reviewer_result.scalar_one_or_none()
+        items.append(ReviewResponse.model_validate(review))
+    return items

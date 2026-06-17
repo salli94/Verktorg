@@ -1,7 +1,7 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, model_validator
 from typing import Optional, Annotated
 from datetime import datetime, date, time
-from .models import UserRole, JobStatus, JobCategory, BidStatus
+from .models import UserRole, JobStatus, JobCategory, BidStatus, ConversationStatus, QuoteStatus
 
 
 class UserRegister(BaseModel):
@@ -17,16 +17,19 @@ class UserLogin(BaseModel):
     password: str
 
 
-class UserResponse(BaseModel):
+class PublicUserResponse(BaseModel):
     id: int
-    email: str
     full_name: str
-    phone: Optional[str] = None
     role: UserRole
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class UserResponse(PublicUserResponse):
+    email: str
+    phone: Optional[str] = None
 
 
 class TokenResponse(BaseModel):
@@ -58,7 +61,7 @@ class CraftsmanProfileResponse(BaseModel):
     portfolio_photos: list[str]
     is_available: bool
     created_at: datetime
-    user: Optional[UserResponse] = None
+    user: Optional[PublicUserResponse] = None
 
     class Config:
         from_attributes = True
@@ -74,6 +77,12 @@ class JobCreate(BaseModel):
     is_fixed_price: bool = False
     preferred_date: Optional[date] = None
 
+    @model_validator(mode="after")
+    def validate_budget_range(self):
+        if self.budget_min is not None and self.budget_max is not None and self.budget_min > self.budget_max:
+            raise ValueError("budget_min must be less than or equal to budget_max")
+        return self
+
 
 class JobUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=5, max_length=120)
@@ -85,6 +94,12 @@ class JobUpdate(BaseModel):
     is_fixed_price: Optional[bool] = None
     preferred_date: Optional[date] = None
     status: Optional[JobStatus] = None
+
+    @model_validator(mode="after")
+    def validate_budget_range(self):
+        if self.budget_min is not None and self.budget_max is not None and self.budget_min > self.budget_max:
+            raise ValueError("budget_min must be less than or equal to budget_max")
+        return self
 
 
 class JobResponse(BaseModel):
@@ -100,7 +115,7 @@ class JobResponse(BaseModel):
     preferred_date: Optional[date] = None
     status: JobStatus
     created_at: datetime
-    customer: Optional[UserResponse] = None
+    customer: Optional[PublicUserResponse] = None
     bid_count: Optional[int] = None
 
     class Config:
@@ -119,6 +134,12 @@ class AvailabilitySlotCreate(BaseModel):
     date: date
     start_time: time
     end_time: time
+
+    @model_validator(mode="after")
+    def validate_time_range(self):
+        if self.start_time >= self.end_time:
+            raise ValueError("start_time must be before end_time")
+        return self
 
 
 class AvailabilitySlotResponse(BaseModel):
@@ -149,7 +170,7 @@ class BidResponse(BaseModel):
     estimated_hours: Optional[float] = None
     status: BidStatus
     created_at: datetime
-    craftsman: Optional[UserResponse] = None
+    craftsman: Optional[PublicUserResponse] = None
 
     class Config:
         from_attributes = True
@@ -168,6 +189,7 @@ class ReviewResponse(BaseModel):
     rating: int
     comment: Optional[str] = None
     created_at: datetime
+    reviewer: Optional[PublicUserResponse] = None
 
     class Config:
         from_attributes = True
@@ -196,3 +218,89 @@ class JobSearchParams(BaseModel):
     sort_by: str = "newest"
     page: int = Field(default=1, ge=1)
     page_size: int = Field(default=12, ge=1, le=50)
+
+
+class ConversationThreadCreate(BaseModel):
+    craftsman_user_id: int
+    title: str = Field(..., min_length=5, max_length=140)
+    project_summary: str = Field(..., min_length=10, max_length=2000)
+    category: JobCategory
+    location: Optional[str] = None
+    budget_min: Optional[float] = Field(None, ge=0)
+    budget_max: Optional[float] = Field(None, ge=0)
+    preferred_date: Optional[date] = None
+
+    @model_validator(mode="after")
+    def validate_budget_range(self):
+        if self.budget_min is not None and self.budget_max is not None and self.budget_min > self.budget_max:
+            raise ValueError("budget_min must be less than or equal to budget_max")
+        return self
+
+
+class ConversationMessageCreate(BaseModel):
+    body: str = Field(..., min_length=1, max_length=2000)
+
+
+class ConversationQuoteCreate(BaseModel):
+    amount: float = Field(..., ge=0)
+    note: Optional[str] = Field(None, max_length=1200)
+    estimated_hours: Optional[float] = Field(None, ge=0)
+
+
+class ConversationMessageResponse(BaseModel):
+    id: int
+    thread_id: int
+    sender_id: int
+    body: str
+    contains_contact_info: bool
+    contains_external_link: bool
+    is_flagged: bool
+    risk_flags: list[str]
+    created_at: datetime
+    sender: Optional[PublicUserResponse] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ConversationQuoteResponse(BaseModel):
+    id: int
+    thread_id: int
+    craftsman_user_id: int
+    amount: float
+    note: Optional[str] = None
+    estimated_hours: Optional[float] = None
+    status: QuoteStatus
+    created_at: datetime
+    accepted_at: Optional[datetime] = None
+    craftsman_user: Optional[PublicUserResponse] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ConversationThreadResponse(BaseModel):
+    id: int
+    requester_id: int
+    craftsman_user_id: int
+    title: str
+    project_summary: str
+    category: JobCategory
+    location: Optional[str] = None
+    budget_min: Optional[float] = None
+    budget_max: Optional[float] = None
+    preferred_date: Optional[date] = None
+    related_job_id: Optional[int] = None
+    status: ConversationStatus
+    is_flagged: bool
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    last_message_at: Optional[datetime] = None
+    requester: Optional[PublicUserResponse] = None
+    craftsman_user: Optional[PublicUserResponse] = None
+    latest_message_preview: Optional[str] = None
+    messages: list[ConversationMessageResponse] = []
+    quotes: list[ConversationQuoteResponse] = []
+
+    class Config:
+        from_attributes = True

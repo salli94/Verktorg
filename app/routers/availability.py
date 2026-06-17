@@ -18,6 +18,19 @@ async def _get_craftsman_profile(user: User, db: AsyncSession):
     return profile
 
 
+async def _ensure_slot_available(profile_id: int, data: AvailabilitySlotCreate, db: AsyncSession):
+    overlap_result = await db.execute(
+        select(AvailabilitySlot).where(
+            AvailabilitySlot.craftsman_id == profile_id,
+            AvailabilitySlot.date == data.date,
+            AvailabilitySlot.start_time < data.end_time,
+            AvailabilitySlot.end_time > data.start_time,
+        )
+    )
+    if overlap_result.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="Availability slot overlaps an existing slot")
+
+
 @router.post("/", response_model=AvailabilitySlotResponse, status_code=201)
 async def add_slot(
     data: AvailabilitySlotCreate,
@@ -25,6 +38,7 @@ async def add_slot(
     current_user: User = Depends(get_current_user),
 ):
     profile = await _get_craftsman_profile(current_user, db)
+    await _ensure_slot_available(profile.id, data, db)
     slot = AvailabilitySlot(
         craftsman_id=profile.id,
         date=data.date,
@@ -46,6 +60,7 @@ async def add_bulk_slots(
     profile = await _get_craftsman_profile(current_user, db)
     created = []
     for s in slots:
+        await _ensure_slot_available(profile.id, s, db)
         slot = AvailabilitySlot(
             craftsman_id=profile.id,
             date=s.date,

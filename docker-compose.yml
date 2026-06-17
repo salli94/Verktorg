@@ -6,7 +6,6 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/app/app
-      - ./frontend:/app/frontend
     environment:
       - DATABASE_URL=sqlite+aiosqlite:///./verktorg.db
       - JWT_SECRET=change-this-in-production

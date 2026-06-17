@@ -144,6 +144,14 @@ async def update_job(
     if job.customer_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your job")
 
+    if data.status is not None and data.status != job.status:
+        allowed_transition = (
+            (data.status == JobStatus.COMPLETED and job.status == JobStatus.IN_PROGRESS)
+            or (data.status == JobStatus.CANCELLED and job.status == JobStatus.OPEN)
+        )
+        if not allowed_transition:
+            raise HTTPException(status_code=400, detail="Invalid job status transition")
+
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(job, field, value)
     await db.commit()
@@ -178,6 +186,8 @@ async def delete_job(
         raise HTTPException(status_code=404, detail="Job not found")
     if job.customer_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your job")
+    if job.status != JobStatus.OPEN:
+        raise HTTPException(status_code=400, detail="Only open jobs can be deleted")
     await db.delete(job)
     await db.commit()
     return {"ok": True}

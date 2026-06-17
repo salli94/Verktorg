@@ -28,6 +28,17 @@ class BidStatus(str, enum.Enum):
     WITHDRAWN = "withdrawn"
 
 
+class ConversationStatus(str, enum.Enum):
+    OPEN = "open"
+    CLOSED = "closed"
+
+
+class QuoteStatus(str, enum.Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    DECLINED = "declined"
+
+
 class JobCategory(str, enum.Enum):
     RAFVIRKJUN = "rafvirkjun"
     PIPULAGNIR = "pipulagnir"
@@ -79,6 +90,10 @@ class User(Base):
     bids_made = relationship("Bid", back_populates="craftsman")
     reviews_given = relationship("Review", back_populates="reviewer", foreign_keys="Review.reviewer_id")
     reviews_received = relationship("Review", back_populates="reviewee", foreign_keys="Review.reviewee_id")
+    conversation_threads_requested = relationship("ConversationThread", back_populates="requester", foreign_keys="ConversationThread.requester_id")
+    conversation_threads_received = relationship("ConversationThread", back_populates="craftsman_user", foreign_keys="ConversationThread.craftsman_user_id")
+    conversation_messages = relationship("ConversationMessage", back_populates="sender")
+    conversation_quotes = relationship("ConversationQuote", back_populates="craftsman_user")
 
 
 class CraftsmanProfile(Base):
@@ -120,7 +135,7 @@ class Job(Base):
 
     customer = relationship("User", back_populates="jobs_posted")
     bids = relationship("Bid", back_populates="job", cascade="all, delete-orphan")
-    reviews = relationship("Review", back_populates="job")
+    reviews = relationship("Review", back_populates="job", cascade="all, delete-orphan")
 
 
 class AvailabilitySlot(Base):
@@ -181,3 +196,64 @@ class Notification(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User")
+
+
+class ConversationThread(Base):
+    __tablename__ = "conversation_threads"
+
+    id = Column(Integer, primary_key=True, index=True)
+    requester_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    craftsman_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    title = Column(String, nullable=False)
+    project_summary = Column(Text, nullable=False)
+    category = Column(Enum(JobCategory), nullable=False)
+    location = Column(String)
+    budget_min = Column(Float)
+    budget_max = Column(Float)
+    preferred_date = Column(Date)
+    related_job_id = Column(Integer, ForeignKey("jobs.id"))
+    status = Column(Enum(ConversationStatus), default=ConversationStatus.OPEN, nullable=False)
+    is_flagged = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    last_message_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    requester = relationship("User", back_populates="conversation_threads_requested", foreign_keys=[requester_id])
+    craftsman_user = relationship("User", back_populates="conversation_threads_received", foreign_keys=[craftsman_user_id])
+    related_job = relationship("Job")
+    messages = relationship("ConversationMessage", back_populates="thread", cascade="all, delete-orphan")
+    quotes = relationship("ConversationQuote", back_populates="thread", cascade="all, delete-orphan")
+
+
+class ConversationMessage(Base):
+    __tablename__ = "conversation_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    thread_id = Column(Integer, ForeignKey("conversation_threads.id"), nullable=False)
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    body = Column(Text, nullable=False)
+    contains_contact_info = Column(Boolean, default=False)
+    contains_external_link = Column(Boolean, default=False)
+    is_flagged = Column(Boolean, default=False)
+    risk_flags = Column(JSON, default=list)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    thread = relationship("ConversationThread", back_populates="messages")
+    sender = relationship("User", back_populates="conversation_messages")
+
+
+class ConversationQuote(Base):
+    __tablename__ = "conversation_quotes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    thread_id = Column(Integer, ForeignKey("conversation_threads.id"), nullable=False)
+    craftsman_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    amount = Column(Float, nullable=False)
+    note = Column(Text)
+    estimated_hours = Column(Float)
+    status = Column(Enum(QuoteStatus), default=QuoteStatus.PENDING, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    accepted_at = Column(DateTime(timezone=True))
+
+    thread = relationship("ConversationThread", back_populates="quotes")
+    craftsman_user = relationship("User", back_populates="conversation_quotes")

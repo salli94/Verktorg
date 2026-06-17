@@ -4,5 +4,5 @@ __pycache__
 .env
 *.db
 .DS_Store
-tests/
+frontend/node_modules/
 README.md

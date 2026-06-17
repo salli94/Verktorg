@@ -42,9 +42,23 @@ class TestNotifications:
         )
         return res.json()
 
+    async def _create_craftsman_profile(self, client, token):
+        res = await client.post(
+            "/api/craftsmen/profile",
+            json={
+                "trade_category": "rafvirkjun",
+                "description": "Löggiltur rafvirki",
+                "location": "Reykjavík",
+            },
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        return res.json()
+
     async def test_notification_on_new_bid(self, client):
         cust = await self._register_customer(client)
         craft = await self._register_craftsman(client)
+        profile = await self._create_craftsman_profile(client, craft["access_token"])
+        assert profile.get("id")
         job = await self._create_job(client, cust["access_token"])
         bid = await self._create_bid(client, craft["access_token"], job["id"])
         assert bid.get("id")
@@ -72,6 +86,8 @@ class TestNotifications:
     async def test_mark_notification_read(self, client):
         cust = await self._register_customer(client)
         craft = await self._register_craftsman(client)
+        profile = await self._create_craftsman_profile(client, craft["access_token"])
+        assert profile.get("id")
         job = await self._create_job(client, cust["access_token"])
         await self._create_bid(client, craft["access_token"], job["id"])
 
@@ -101,6 +117,8 @@ class TestNotifications:
     async def test_mark_all_read(self, client):
         cust = await self._register_customer(client)
         craft = await self._register_craftsman(client)
+        profile = await self._create_craftsman_profile(client, craft["access_token"])
+        assert profile.get("id")
         job = await self._create_job(client, cust["access_token"])
         await self._create_bid(client, craft["access_token"], job["id"])
 
@@ -119,6 +137,8 @@ class TestNotifications:
     async def test_notification_on_bid_accepted(self, client):
         cust = await self._register_customer(client)
         craft = await self._register_craftsman(client)
+        profile = await self._create_craftsman_profile(client, craft["access_token"])
+        assert profile.get("id")
         job = await self._create_job(client, cust["access_token"])
         bid = await self._create_bid(client, craft["access_token"], job["id"])
 

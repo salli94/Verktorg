@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
 from ..database import get_db
-from ..models import User, Job, Bid, UserRole, BidStatus, JobStatus
+from ..models import User, Job, Bid, CraftsmanProfile, UserRole, BidStatus, JobStatus
 from ..schemas import BidCreate, BidResponse
 from ..auth import get_current_user
 from ..notification_service import create_and_send_notification
@@ -17,8 +17,11 @@ async def create_bid(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    if current_user.role != UserRole.CRAFTSMAN:
-        raise HTTPException(status_code=403, detail="Only craftsmen can bid")
+    profile_result = await db.execute(
+        select(CraftsmanProfile).where(CraftsmanProfile.user_id == current_user.id)
+    )
+    if profile_result.scalar_one_or_none() is None:
+        raise HTTPException(status_code=403, detail="Create a craftsman profile before bidding")
 
     job_result = await db.execute(select(Job).where(Job.id == job_id))
     job = job_result.scalar_one_or_none()
@@ -59,10 +62,16 @@ async def create_bid(
 
 @router.get("/my")
 async def get_my_bids(
+    scope: str = Query("auto", pattern=r"^(auto|made|received)$"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    if current_user.role == UserRole.CRAFTSMAN:
+    has_profile_result = await db.execute(
+        select(CraftsmanProfile).where(CraftsmanProfile.user_id == current_user.id)
+    )
+    has_craftsman_profile = has_profile_result.scalar_one_or_none() is not None
+
+    if scope == "made" or (scope == "auto" and has_craftsman_profile):
         result = await db.execute(
             select(Bid).where(Bid.craftsman_id == current_user.id)
             .order_by(Bid.created_at.desc())
@@ -96,6 +105,22 @@ async def accept_bid(
     job = job_result.scalar_one_or_none()
     if job.customer_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your job")
+    if job.status != JobStatus.OPEN:
+        raise HTTPException(status_code=400, detail="Job is not open for bid acceptance")
+    if bid.status != BidStatus.PENDING:
+        raise HTTPException(status_code=400, detail="Only pending bids can be accepted")
+
+    transition_result = await db.execute(
+        update(Job)
+        .where(
+            Job.id == bid.job_id,
+            Job.customer_id == current_user.id,
+            Job.status == JobStatus.OPEN,
+        )
+        .values(status=JobStatus.IN_PROGRESS)
+    )
+    if transition_result.rowcount != 1:
+        raise HTTPException(status_code=400, detail="A bid has already been accepted for this job")
 
     bid.status = BidStatus.ACCEPTED
     job.status = JobStatus.IN_PROGRESS

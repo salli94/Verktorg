@@ -1,19 +1,16 @@
 import os
-import pytest
+from pathlib import Path
+
+os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///./test_verktorg.db"
+
 import pytest_asyncio
-import asyncio
 from httpx import AsyncClient, ASGITransport
+
+from app.database import Base, engine
 from app.main import app
-from app.database import engine, Base
-
-os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///:memory:"
 
 
-@pytest.fixture(scope="session")
-def event_loop():
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
+TEST_DB_PATH = Path("./test_verktorg.db")
 
 
 @pytest_asyncio.fixture(autouse=True)
@@ -23,6 +20,9 @@ async def setup_db():
     yield
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+    await engine.dispose()
+    if TEST_DB_PATH.exists():
+        TEST_DB_PATH.unlink()
 
 
 @pytest_asyncio.fixture

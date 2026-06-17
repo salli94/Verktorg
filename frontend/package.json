@@ -1,0 +1,16 @@
+{
+  "name": "verktorg-frontend",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/app.ts --bundle --platform=browser --format=iife --target=es2020 --outfile=dist/app.js",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run build"
+  },
+  "dependencies": {
+    "alpinejs": "^3.14.9"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.2"
+  }
+}
